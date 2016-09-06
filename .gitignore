@@ -1,0 +1,11 @@
+.Rproj.user
+.DS_Store
+.Rhistory
+.RData
+.Ruserdata
+*.Rproj
+data/
+models/
+out/
+predictions/
+R/
