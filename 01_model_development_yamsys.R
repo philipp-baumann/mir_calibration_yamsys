@@ -66,7 +66,8 @@ outliers_list <- which(!(soilspec_all$data_meta[, 1] %in% soilspec_rm$data_meta[
 soilspec_all$data_meta[outliers_list, ]
 
 # Average, remove outlier, resample, then pre-process spectra ------------------
-soilspec <- soilspec_in %>% average_spectra() %>%
+soilspec <- soilspec_in %>%
+  average_spectra() %>%
   # do not remove outliers
   remove_outliers(remove = FALSE) %>%
   resample_spectra(wn_lower = 510, wn_upper = 3988, wn_interval = 2) %>%
