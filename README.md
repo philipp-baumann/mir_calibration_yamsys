@@ -10,6 +10,11 @@ of tasks:
 * `02_model_prediction_yamsys.R `: Read models developed in the first script and
 predict soil properties from calibrated models and new spectra
 
+The functions rely on the simplerspec package that is available on GitHub.
+Package sources and instructions how to install the package can be found [here](https://github.com/philipp-baumann/simplerspec). 
+The package is an interface that uses pre-existing for spectral data handling and modeling
+packages, and various other packages such as the famous dplyr package.
+
 # Important notes
 
 It is recommended to work with projects in RStudio. This means you 
