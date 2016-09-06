@@ -31,18 +31,18 @@ In parallel, the full data and R code will be available on a data repository.
 You should create the following folders in the directory where your R project
 is located:
 
-* `data ` : Soil chemical and spectral data
+* `data `: Soil chemical and spectral data
   * `soilchem `: soil chemistry data for calibration and validation as text files
-  * `spectra ` raw spectra. Exported text files for spectra can be put into a subfolder, e.g. `alpha_txt`
+  * `spectra `: raw spectra. Exported text files for spectra can be put into a subfolder, e.g. `alpha_txt`
 * `models `:  models as `.Rds` files. Models don't have to be re-built and just can be loaded into memory when predictions are needed
 * `out ` output generated from R code
-  * `figs ` : figures from plots etc.
-  * `data ` : additional data output
-* `predictions` : data sets from predictions using models and new spectra
+  * `figs `: figures from plots etc.
+  * `data `: additional data output
+* `predictions`: data sets from predictions using models and new spectra
 * `R `: additional R scripts that have auxiliary R functions not yet shipped in the simplerspec package
 
 You should make sure that you always have a clean memory when you re-open your project.
-Models should always be loaded from R objects that are saved in the directory `models` (`.Rds`files)
+Models should always be loaded from R objects that are saved in the directory `models` (`.Rds`files).
 In RStudio go to *Preferences* -> *General*, then disable option "Restore .RData into workspace at startup";
 also select *Never* for "Save workspace to .RData on exit:".
 This avoids that you have old R objects in your memory and makes sure you have a clear
