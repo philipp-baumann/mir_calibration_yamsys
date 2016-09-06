@@ -38,8 +38,8 @@ is located:
 
 You should make sure that you always have a clean memory when you re-open your project.
 Models should always be loaded from R objects that are saved in the directory `models` (`.Rds`files)
-In RStudio go to <Preferences> -> <General>, then disable option "Restore .RData into workspace at startup";
-also sßelect <Never> for "Save workspace to .RData on exit:". 
+In RStudio go to *Preferences* -> *General*, then disable option "Restore .RData into workspace at startup";
+also select *Never* for "Save workspace to .RData on exit:".
 This avoids that you have old R objects in your memory and makes sure you have a clear
 workspace when you restart the R session. This forces you to always write your 
 R commands in your scripts and not only manually entering commands in the console.
