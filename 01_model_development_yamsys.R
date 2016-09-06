@@ -1,6 +1,6 @@
 ################################################################################
 ## Script author: Philipp Baumann (philipp.baumann@usys.ethz.ch)
-## License: GPL-2.0
+## License: GPL-3.0
 ## Date: September 6, 2016
 ## Project: YAMSYS
 ## Description: Develop PLS regression calibration models for the YAMSYS
