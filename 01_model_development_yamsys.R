@@ -223,16 +223,12 @@ pls_exch_Al <- pls_ken_stone(
 )
 
 # CEC_eff
-# Model is not working because there is a CEC value > 10000 !!!
 pls_CEC <- pls_ken_stone(
   spec_chem = spec_chem[!is.na(spec_chem$CEC_eff), ],
   ratio_val = 1/3,
   variable = CEC_eff,
   validation = TRUE
 )
-
-# Check data set used for CEC model
-spec_CEC <- spec_chem[!is.na(spec_chem$CEC_eff), ]
 
 # BS_eff
 pls_BS <- pls_ken_stone(
