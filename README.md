@@ -97,3 +97,7 @@ information on planting systems.
 File names of spectra should be exactly identical to the *sample_id* and should not
 use space. use underscores (`_`) instead of spaces.
 analysis and modeling.
+
+Create an additional file called `metadata_soilchem_<name_of_project>` where you specifify the units and methology details for the measured soil properties. Use identical column names as in the chemical reference
+data file. Add also details on your study as the research questions, experimental design, and
+other remarks.
