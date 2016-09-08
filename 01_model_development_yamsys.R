@@ -79,7 +79,7 @@ colnames(soilspec$MIR0)
 
 # Read chemical data from csv (comma-separated values) files -------------------
 soilchem <- read.csv(
-  file = "out/data/soilchem_yamsys.csv")
+  file = "data/soilchem/soilchem_yamsys.csv")
 str(soilchem)
 soilchem$sample_ID
 
