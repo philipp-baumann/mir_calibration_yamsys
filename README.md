@@ -31,7 +31,8 @@ In parallel, the full data and R code will be available on a data repository.
 You should create the following folders in the directory where your R project
 is located:
 
-* `data `: Soil chemical and spectral data
+* `data `: soil chemical and spectral data
+  * `metadata `: metadata from field sampling in a single text (`.csv`) file
   * `soilchem `: soil chemistry data for calibration and validation as text files
   * `spectra `: raw spectra. Exported text files for spectra can be put into a subfolder, e.g. `alpha_txt`
 * `models `:  models as `.Rds` files. Models don't have to be re-built and just can be loaded into memory when predictions are needed
