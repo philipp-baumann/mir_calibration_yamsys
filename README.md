@@ -48,3 +48,31 @@ also select *Never* for "Save workspace to .RData on exit:".
 This avoids that you have old R objects in your memory and makes sure you have a clear
 workspace when you restart the R session. This forces you to always write your 
 R commands in your scripts and not only manually entering commands in the console.
+
+# Metadata management and file naming
+
+To maintain reproducible data analysis and modeling is crucial to keep spectra, chemical data, and sampling metadata (data on where and how samples where collected) well organized. All data usually stored within different 
+files should be tidy data sets:
+
+1. Each variable forms a column.
+2. Each observation forms a row.
+3. Each type of observational unit forms a table.
+
+Please consider the [following paper](http://vita.had.co.nz/papers/tidy-data.html) of Hadley Wickham to understand the concept of *tidy data*. Detailed example R code to make data tidy using the dplyr package can be found
+[here](https://cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html).
+
+Chemical data and sampling metadata should be saved in different tables. Both data
+sets should contain the column *sample_id*. The *sample_id* names have to be unique, meaning
+that only one sample row is allowed per *sample_id*. The *sample_id* allows to link
+different tables (usualy data frames in R) during the data analysis and modeling.
+You can use excel to store metadata and data. However, export files as `.csv` text files.
+Use comma `,` as column separator. If you use Microsoft Excel make sure you don't use
+semicolon (`;`). To check open the file in a text editor. If yes, you can also replace all 
+semicolons by commas.
+
+The sample id should be meaningful and should contain information about the *field_id*,
+the *country*, and *site*.
+
+File names of spectra should be exactly identical to the *sample_id* and should not
+use space. use underscores (`_`) instead of spaces.
+analysis and modeling.
