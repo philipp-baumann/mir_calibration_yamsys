@@ -66,12 +66,32 @@ sets should contain the column *sample_id*. The *sample_id* names have to be uni
 that only one sample row is allowed per *sample_id*. The *sample_id* allows to link
 different tables (usualy data frames in R) during the data analysis and modeling.
 You can use excel to store metadata and data. However, export files as `.csv` text files.
-Use comma `,` as column separator. If you use Microsoft Excel make sure you don't use
+Use comma (`,`) as column separator. If you use Microsoft Excel make sure you don't use
 semicolon (`;`). To check open the file in a text editor. If yes, you can also replace all 
 semicolons by commas.
 
-The sample id should be meaningful and should contain information about the *field_id*,
-the *country*, and *site*.
+Sampling metadata should at least contain the following columns:
+
+* `sample_id `: unique identifier; The sample id should be meaningful and should contain information about the field_id, the country, and site.
+* `field_id `
+* `country `
+* `site `: name or abbreviation of the region where field are located
+* `farmer_name`
+* `material`: e.g. "plant" or "soil"
+* `date` : Use only number format (integer), %yyyymmdd%, eg. 20150704.
+* `latitude`
+* `longitude`
+* `altitude`
+* `coordinate_system `: reference geographic coordinate system
+
+Optionally, you can also add more columns such as:
+
+* `species `: species names
+* `variety `: variety names
+* `material_type `: e.g. for plants "leaf", "vine", or "tuber"
+* any additional variables noted in the field, eg. development stage or 
+information on planting systems.
+
 
 File names of spectra should be exactly identical to the *sample_id* and should not
 use space. use underscores (`_`) instead of spaces.
