@@ -1,4 +1,4 @@
-# R Scripts for Mid-Infrared (MIR) spectroscopy for YAMSYS
+# R Scripts for Mid-Infrared (MIR) spectroscopy
 
 The code in this repository performs two categories
 of modeling tasks:
@@ -60,8 +60,7 @@ files should be tidy data sets:
 
 1. Each variable forms a column.
 2. Each observation forms a row.
-3. Each type of observational unit forms a table. Chemical data metadata are stored
-in two different tables.
+3. Each type of observational unit forms a table. As an example, chemical data and related metadata are stored in two different tables. Observations can be linked by common columns such as *sample_ID*.
 
 Please consider the [following paper](http://vita.had.co.nz/papers/tidy-data.html) of Hadley Wickham to understand the concept of *tidy data*. Detailed example R code to make data tidy using the [dplyr](https://github.com/hadley/dplyr) package can be found
 [here](https://cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html).
@@ -77,8 +76,8 @@ semicolons by commas.
 
 Sampling metadata should at least contain the following columns:
 
-* `sample_id `: Unique identifier; The sample id should be meaningful and should contain information about the field_id, the country, and site.
-* `field_id ` 
+* `sample_id `: Unique identifier; The sample id should be meaningful and should contain information about the field_id, the country, site, field_number, and e.g. plot and replicate.
+* `field_id `: Identifier code for the field. Code can originate from country_code, site_code, and e.g. an additional numeric field number.
 * `country_name `: full country name where samples were collected
 * `country_code `: abbreviation of country name
 * `site_name `: name of administrative region where field are located
