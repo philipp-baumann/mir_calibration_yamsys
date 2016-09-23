@@ -115,6 +115,7 @@ pls_Fe_total <- pls_ken_stone(
   spec_chem = spec_chem[!is.na(spec_chem$Fe_tot), ],
   ratio_val = 1/3,
   variable = Fe_tot,
+  pc = 0.99,
   validation = TRUE
 )
 
@@ -390,6 +391,24 @@ saveRDS(pls_Mn_DTPA, "models/pls_Mn_DTPA.Rds")
 
 # Check if models have been written
 list.files("rds")
+
+################################################################################
+## Test function to select reference samples to be measured by reference
+## analysis methods
+################################################################################
+
+# Get list of reference and prediction samples from Kennard-Stones sampling
+ref_pred_samples <- select_ref_samples(
+  # Preprocessed spectra and metadata in list after preprocessing step
+  list_spectra = soilspec,
+  # Use 2 principal components for the computation of Mahalanobsis distance
+  pc = 2,
+  # Use 15% of samples for reference chemical analysis and model development
+  ratio_ref = 0.15
+)
+
+# Get sample ID from selection list for determining which samples to analyze
+ref_pred_samples$ref_samples$metadata
 
 ################################################################################
 ## Some extra code for inspecting model objects, and
