@@ -71,7 +71,7 @@ soilspec <- soilspec_in %>%
   # do not remove outliers
   remove_outliers(remove = FALSE) %>%
   resample_spectra(wn_lower = 510, wn_upper = 3988, wn_interval = 2) %>%
-  do_pretreatment(select = "MIR0")
+  do_pretreatment(select = "MIR1_w21")
 
 # Check if resampling worked, extract wavenumbers that are stored in column
 # names of spectral matrix
@@ -252,7 +252,10 @@ pls_C <- pls_ken_stone(
   spec_chem = spec_chem[!is.na(spec_chem$C), ],
   ratio_val = 1/3,
   variable = C,
-  validation = TRUE
+  validation = TRUE,
+  invert = TRUE,
+  pc = 6,
+  max_ncomp_pls = 6
 )
 
 # Total N
@@ -410,6 +413,9 @@ ref_pred_samples <- select_ref_samples(
 # Get sample ID from selection list for determining which samples to analyze
 ref_pred_samples$ref_samples$metadata
 
+# Print plot of selected reference and predict samples in PCA space
+ref_pred_samples$p_pca
+
 ################################################################################
 ## Some extra code for inspecting model objects, and
 ## predicting calibrated soil properties using the above calibration models
@@ -436,3 +442,9 @@ pls_C$p_model$data
 
 # Get summary statistics as data frame object
 pls_C$stats
+
+################################################################################
+
+## Perform robust PCA with spectral data =======================================
+
+pca <- prcomp(soilspec$MIR_pre, center = TRUE, scale = FALSE)
