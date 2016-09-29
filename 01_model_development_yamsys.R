@@ -228,7 +228,10 @@ pls_CEC <- pls_ken_stone(
   spec_chem = spec_chem[!is.na(spec_chem$CEC_eff), ],
   ratio_val = 1/3,
   variable = CEC_eff,
-  validation = TRUE
+  validation = TRUE,
+  pc = 5,
+  invert = FALSE,
+  max_ncomp_pls = 5
 )
 
 # BS_eff
@@ -253,7 +256,7 @@ pls_C <- pls_ken_stone(
   ratio_val = 1/3,
   variable = C,
   validation = TRUE,
-  invert = TRUE,
+  invert = FALSE,
   pc = 6,
   max_ncomp_pls = 6
 )
@@ -262,7 +265,9 @@ pls_C <- pls_ken_stone(
 pls_N <- pls_ken_stone(
   spec_chem = spec_chem[!is.na(spec_chem$N), ],
   ratio_val = 1/3,
-  variable = N
+  variable = N,
+  pc = 6,
+  max_ncomp_pls = 6
 )
 
 # Total S
@@ -375,8 +380,8 @@ saveRDS(pls_BS, "models/pls_BS.Rds")
 ## Total C, total N, total S, total P
 ## =============================================================================
 
-saveRDS(pls_N, "models/pls_C.Rds")
-saveRDS(pls_C, "models/pls_N.Rds")
+saveRDS(pls_N, "models/pls_N.Rds")
+saveRDS(pls_C, "models/pls_C.Rds")
 saveRDS(pls_S, "models/pls_S.Rds")
 saveRDS(pls_P, "models/pls_P.Rds")
 
