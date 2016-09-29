@@ -8,4 +8,4 @@ data/
 models/
 out/
 predictions/
-R/
+*.pdf
