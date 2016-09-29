@@ -113,3 +113,142 @@ list_pls_models <-  list(
 # Create list of ggplot2 plot objects for all variables ------------------------
 list_pls_plot <- extract_pls_plot(list_pls_models)
 
+# Edit axis labels in pls plot list --------------------------------------------
+
+# Soil mineralogy related
+# Total Fe
+xlab_Fe <- xlab(expression(paste("Total Fe", " [g ", kg^-1, "]")))
+ylab_Fe <- ylab(expression(paste("Total Fe", " [g ", kg^-1, "]")))
+# Total Si
+xlab_Si <- xlab(expression(paste("Total Si", " [g ", kg^-1, "]")))
+ylab_Si <- ylab(expression(paste("Total Si", " [g ", kg^-1, "]")))
+# Total Al
+xlab_Al <- xlab(expression(paste("Total Al", " [g ", kg^-1, "]")))
+ylab_Al <- ylab(expression(paste("Total Al", " [g ", kg^-1, "]")))
+# Total K
+xlab_K <- xlab(expression(paste("Total K", " [g ", kg^-1, "]")))
+ylab_K <- ylab(expression(paste("Total K", " [g ", kg^-1, "]")))
+# Total Ca
+xlab_Ca <- xlab(expression(paste("Total Ca", " [g ", kg^-1, "]")))
+ylab_Ca <- ylab(expression(paste("Total Ca", " [g ", kg^-1, "]")))
+# Total Zn
+xlab_Zn <- xlab(expression(paste("Total Zn", " [mg ", kg^-1, "]")))
+ylab_Zn <- ylab(expression(paste("Total Zn", " [mg ", kg^-1, "]"))) 
+# Total Cu
+xlab_Cu <- xlab(expression(paste("Total Cu", " [mg ", kg^-1, "]")))
+ylab_Cu <- ylab(expression(paste("Total Cu", " [mg ", kg^-1, "]")))
+# Total Mn
+xlab_Mn <- xlab(expression(paste("Total Mn", " [mg ", kg^-1, "]")))
+ylab_Mn <- ylab(expression(paste("Total Mn", " [mg ", kg^-1, "]")))
+
+# Soil mineralogy + plant nutrition related
+# pH
+xlab_pH <- xlab(expression(paste("pH", "(", H[2], "O", ")")))
+ylab_pH <- ylab(expression(paste("pH", "(", H[2], "O", ")")))
+# Exchangeable K
+xlab_K_exch <- xlab(expression(paste("K (exch.)", " [mg ", kg^-1, "]")))
+ylab_K_exch <- ylab(expression(paste("K (exch.)", " [mg ", kg^-1, "]")))
+# Exchangeable Ca
+xlab_Ca_exch <- xlab(expression(paste("Ca (exch.)", " [mg ", kg^-1, "]")))
+ylab_Ca_exch <- ylab(expression(paste("Ca (exch.)", " [mg ", kg^-1, "]")))
+# Exchangeable Mg
+xlab_Mg_exch <- xlab(expression(paste("Mg (exch.)", " [mg ", kg^-1, "]")))
+ylab_Mg_exch <- ylab(expression(paste("Mg (exch.)", " [mg ", kg^-1, "]")))
+# Exchangeable Al
+xlab_Al_exch <- xlab(expression(paste("Al (exch.)", " [mg ", kg^-1, "]")))
+ylab_Al_exch <- ylab(expression(paste("Al (exch.)", " [mg ", kg^-1, "]")))
+# Effective Cation Exchange Capacity (CEC)
+xlab_CEC <- xlab(expression(paste("Obs. ", CEC[eff], " [cmol(+) ", kg^-1, "]")))
+ylab_CEC <- ylab(expression(paste("Pred. ", CEC[eff], " [cmol(+) ", kg^-1, "]")))
+# Base saturation 
+xlab_BS <- xlab("Base saturation [%]")
+ylab_BS <- ylab("Base saturation [%]")
+
+
+# Soil organic matter
+# Total C
+xlab_C <- xlab(expression(paste("Obs. total C", " [g ", kg^-1, "]")))
+ylab_C <- ylab(expression(paste("Pred. total C", " [g ", kg^-1, "]")))
+# Total nitrogen
+xlab_N <- xlab(expression(paste("Total N", " [g ", kg^-1, "]")))
+ylab_N <- ylab(expression(paste("Total N", " [g ", kg^-1, "]")))
+# Total sulfur
+xlab_S <- xlab(expression(paste("Total S", " [mg ", kg^-1, "]")))
+ylab_S <- ylab(expression(paste("Total S", " [mg ", kg^-1, "]")))
+# Total P
+xlab_P <- xlab(expression(paste("Total P", " [mg ", kg^-1, "]")))
+ylab_P <- ylab(expression(paste("Total P", " [mg ", kg^-1, "]"))) 
+
+
+# Plant nutrition related soil properties
+# Resin extractable P 
+xlab_P_resin <- xlab(expression(paste("log(Resin P)", " [mg ", kg^-1, "]")))
+ylab_P_resin <- ylab(expression(paste("log(Resin P)", " [mg ", kg^-1, "]")))
+# Fe(DTPA)
+xlab_Fe_DTPA <- xlab(expression(paste("log(Fe (DTPA))", " [mg ", kg^-1, "]")))
+ylab_Fe_DTPA <- ylab(expression(paste("log(Fe (DTPA))", " [mg ", kg^-1, "]")))
+# Zn(DTPA)
+xlab_Zn_DTPA <- xlab(expression(paste("Zn (DTPA)", " [mg ", kg^-1, "]")))
+ylab_Zn_DTPA <- ylab(expression(paste("Zn (DTPA)", " [mg ", kg^-1, "]")))
+# Cu(DTPA)
+xlab_Cu_DTPA <- xlab(expression(paste("Cu (DTPA)", " [mg ", kg^-1, "]")))
+ylab_Cu_DTPA <- ylab(expression(paste("Cu (DTPA)", " [mg ", kg^-1, "]")))
+# Mn(DTPA)
+xlab_Mn_DTPA <- xlab(expression(paste("Mn (DTPA)", " [mg ", kg^-1, "]")))
+ylab_Mn_DTPA <- ylab(expression(paste("Mn (DTPA)", " [mg ", kg^-1, "]")))
+
+
+# Add new x and y axis annotations to model plots in list ----------------------
+
+list_pls_plot$pls_Fe_total <- list_pls_plot$pls_Fe_total +
+  xlab_Fe + ylab_Fe
+list_pls_plot$pls_Si_total <- list_pls_plot$pls_Si_total +
+  xlab_Si + ylab_Si
+list_pls_plot$pls_Al_total <- list_pls_plot$pls_Al_total +
+  xlab_Al + ylab_Al
+list_pls_plot$pls_K_total <- list_pls_plot$pls_K_total +
+  xlab_K + ylab_K
+list_pls_plot$pls_Ca_total <- list_pls_plot$pls_Ca_total +
+  xlab_Ca + ylab_Ca
+list_pls_plot$pls_Zn_total <- list_pls_plot$pls_Zn_total +
+  xlab_Zn + ylab_Zn
+list_pls_plot$pls_Cu_total <- list_pls_plot$pls_Cu_total +
+  xlab_Cu + ylab_Cu
+list_pls_plot$pls_Mn_total <- list_pls_plot$pls_Mn_total +
+  xlab_Mn + ylab_Mn
+
+list_pls_plot$pls_pH <- list_pls_plot$pls_pH +
+  xlab_pH + ylab_pH
+list_pls_plot$pls_exch_K <- list_pls_plot$pls_exch_K +
+  xlab_K_exch + ylab_K_exch
+list_pls_plot$pls_exch_Ca <- list_pls_plot$pls_exch_Ca +
+  xlab_Ca_exch + ylab_Ca_exch
+list_pls_plot$pls_exch_Mg <- list_pls_plot$pls_exch_Mg +
+  xlab_Mg_exch + ylab_Mg_exch
+list_pls_plot$pls_exch_Al <- list_pls_plot$pls_exch_Al +
+  xlab_Al_exch + ylab_Al_exch
+list_pls_plot$pls_BS <- list_pls_plot$pls_BS +
+  xlab_BS + ylab_BS
+list_pls_plot$pls_CEC <- list_pls_plot$pls_CEC +
+  xlab_CEC + ylab_CEC
+
+list_pls_plot$pls_soil_C_all <- list_pls_plot$pls_soil_C_all +
+  xlab_C + ylab_C
+list_pls_plot$pls_soil_N_all <- list_pls_plot$pls_soil_N_all +
+  xlab_N + ylab_N + xlim(c(0, 2.2)) + ylim(c(0, 2.2))
+list_pls_plot$pls_soil_S_all <- list_pls_plot$pls_soil_S_all +
+  xlab_S + ylab_S
+list_pls_plot$pls_P_total <- list_pls_plot$pls_P_total +
+  xlab_P + ylab_P
+
+list_pls_plot$pls_resin_P <- list_pls_plot$pls_resin_P +
+  xlab_P_resin + ylab_P_resin
+list_pls_plot$pls_Fe_DTPA <- list_pls_plot$pls_Fe_DTPA +
+  xlab_Fe_DTPA + ylab_Fe_DTPA
+list_pls_plot$pls_Zn_DTPA <- list_pls_plot$pls_Zn_DTPA +
+  xlab_Zn_DTPA + ylab_Zn_DTPA
+list_pls_plot$pls_Cu_DTPA <- list_pls_plot$pls_Cu_DTPA +
+  xlab_Cu_DTPA + ylab_Cu_DTPA
+list_pls_plot$pls_Mn_DTPA <- list_pls_plot$pls_Mn_DTPA +
+  xlab_Mn_DTPA + ylab_Mn_DTPA
+
