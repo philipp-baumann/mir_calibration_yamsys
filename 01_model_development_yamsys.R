@@ -115,7 +115,7 @@ pls_Fe_total <- pls_ken_stone(
   spec_chem = spec_chem[!is.na(spec_chem$Fe_tot), ],
   ratio_val = 1/3,
   variable = Fe_tot,
-  pc = 0.99,
+  pc = 5,
   validation = TRUE
 )
 
@@ -231,7 +231,7 @@ pls_CEC <- pls_ken_stone(
   validation = TRUE,
   pc = 5,
   invert = FALSE,
-  max_ncomp_pls = 5
+  ncomp_pls_max = 5
 )
 
 # BS_eff
@@ -258,7 +258,7 @@ pls_C <- pls_ken_stone(
   validation = TRUE,
   invert = FALSE,
   pc = 6,
-  max_ncomp_pls = 6
+  ncomp_pls_max = 6
 )
 
 # Total N
@@ -267,7 +267,7 @@ pls_N <- pls_ken_stone(
   ratio_val = 1/3,
   variable = N,
   pc = 6,
-  max_ncomp_pls = 6
+  ncomp_pls_max = 6
 )
 
 # Total S
