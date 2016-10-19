@@ -34,64 +34,35 @@ require(tidyverse)
 ## spectral and chemical data sets
 ################################################################################
 
-# Processing of spectral data ==================================================
-# spectral data preparation:
+## Read spectra in list ========================================================
 
-# Read spectra in text format (Alpha spectrometer) -----------------------------
-soilspec_in <- read_spectra(
-  path = "data/spectra/alpha_txt/"
+# List of OPUS files from Alpha at ETH Zürich
+lf_eth <- list.files("data/spectra/soilspec_eth_bin/", full.names = T)
+
+# Read files: ETH
+spc_list_eth <- read_opus(
+  fnames = lf_eth,
+  in_format = c("binary"),
+  out_format = "list"
 )
 
-# Calculate mean of spectra for each sample ------------------------------------
-# Compute the standard deviation (SD) of the three measurements
-# identify samples in which the spectrum has SD higher than 1.5
-# and need to be re-scanned
-soilspec_mean <- average_spectra(soilspec_in)
-soilspec_mean$MIR_sd
-soilspec_mean$cvar > 0.4 # the coefficient of variation
+## Spectral data processing pipe ===============================================
 
-# don't remove outliers; keep all spectra --------------------------------------
-soilspec_all <- remove_outliers(soilspec_mean,
-  remove = FALSE
-)
+# ETH Alpha files
+soilspec_tbl_eth <- spc_list_eth %>%
+  gather_spc() %>% 
+  resample_spc(wn_lower = 500, wn_upper = 3996, wn_interval = 2) %>%
+  average_spc() %>%
+  preprocess_spc(select = "sg_1_w21")
 
-# Remove outliers; keep all spectra --------------------------------------------
-# Detect outliers based on robust PCA
-soilspec_rm <- remove_outliers(soilspec_mean,
-  remove = TRUE
-)
+## Read chemical reference data and join with spectral data ====================
 
-# get the list of outliers
-outliers_list <- which(!(soilspec_all$data_meta[, 1] %in% soilspec_rm$data_meta[, 1]))
-soilspec_all$data_meta[outliers_list, ]
+# Read chemical reference analysis data
+soilchem_tbl <- read_csv(file = "data/soilchem/soilchem_yamsys.csv")
 
-# Average, remove outlier, resample, then pre-process spectra ------------------
-soilspec <- soilspec_in %>%
-  average_spectra() %>%
-  # do not remove outliers
-  remove_outliers(remove = FALSE) %>%
-  resample_spectra(wn_lower = 510, wn_upper = 3988, wn_interval = 2) %>%
-  do_pretreatment(select = "MIR1_w21")
-
-# Check if resampling worked, extract wavenumbers that are stored in column
-# names of spectral matrix
-colnames(soilspec$MIR0)
-
-# Read chemical data from csv (comma-separated values) files -------------------
-soilchem <- read.csv(
-  file = "data/soilchem/soilchem_yamsys.csv")
-str(soilchem)
-soilchem$sample_ID
-
-# Join chemical and spectra data -----------------------------------------------
-
-spec_chem <- join_chem_spec(dat_chem = soilchem, dat_spec = soilspec)
-
-# Check number of rows (samples) in spectral matrix
-nrow(spec_chem$MIR)
-# Check lenght of ID column in spec_chem data frame -> should be identical to 
-# output from line above
-length(spec_chem$ID)
+# Join spectra tibble and chemical reference analysis tibble
+spec_chem <- join_spc_chem(
+  spc_tbl = soilspec_tbl_eth , chem_tbl = soilchem_tbl, by = "sample_id")
 
 
 ################################################################################
