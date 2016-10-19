@@ -12,7 +12,7 @@
 # List of packages to be installed
 # list_packages <- c("ggplot2", "plyr", "data.table", "reshape2",
 #   "mvoutlier", "hexView", "Rcpp", "hyperSpec", "prospectr",
-#   "dplyr", "caret")
+#   "dplyr", "caret", "tidyverse")
 # Install packages from CRAN
 # install.packages(list_packages, dependencies = TRUE)
 # install.packages("devtools")
@@ -25,9 +25,9 @@ rm(list = ls())
 
 # Load simplerspec package for spectral model development helper functions
 require(simplerspec)
-# Load dplyr package for efficient data manipulation functions and the 
-# pipe operator %>% ("then") provided from the magrittr package 
-require(dplyr)
+# Load tidyverse package: loads packages frequently used for data manipulation,
+# data tidying, import, and plotting
+require(tidyverse)
 
 ################################################################################
 ## Part 1: Read and pre-process spectra, Read chemical data, and join
@@ -115,8 +115,9 @@ pls_Fe_total <- pls_ken_stone(
   spec_chem = spec_chem[!is.na(spec_chem$Fe_tot), ],
   ratio_val = 1/3,
   variable = Fe_tot,
-  pc = 5,
-  validation = TRUE
+  pc = 4,
+  validation = TRUE,
+  pls_ncomp_max = 4
 )
 
 # Total Si
@@ -124,7 +125,9 @@ pls_Si_total <- pls_ken_stone(
   spec_chem = spec_chem[!is.na(spec_chem$Si_tot), ],
   ratio_val = 1/3,
   variable = Si_tot,
-  validation = TRUE
+  pc = 5,
+  validation = TRUE,
+  pls_ncomp_max = 4
 )
 
 # Total Al
@@ -132,7 +135,8 @@ pls_Al_total <- pls_ken_stone(
   spec_chem = spec_chem[!is.na(spec_chem$Al_tot), ],
   ratio_val = 1/3,
   variable = Al_tot,
-  validation = TRUE
+  validation = TRUE,
+  pls_ncomp_max = 4
 )
 
 # Total K
@@ -140,10 +144,13 @@ pls_K_total <- pls_ken_stone(
   spec_chem = spec_chem[!is.na(spec_chem$K_tot), ],
   ratio_val = 1/3,
   variable = K_tot,
-  validation = TRUE
+  validation = TRUE,
+  pls_ncomp_max = 5
 )
 
 # Total Zn
+# remark: default model has only 1 PLS component;
+# with increasing PLS component RMSE of cross-validation increases!
 pls_Zn_total <- pls_ken_stone(
   spec_chem = spec_chem[!is.na(spec_chem$Zn_tot), ],
   ratio_val = 1/3,
@@ -152,11 +159,16 @@ pls_Zn_total <- pls_ken_stone(
 )
 
 # Total Cu
+# Default number of PLS components (caret selection) is 1,
+# but cross-validation indicates that 3 components has a slightly lower
+# RMSE
 pls_Cu_total <- pls_ken_stone(
   spec_chem = spec_chem[!is.na(spec_chem$Cu_tot), ],
   ratio_val = 1/3,
   variable = Cu_tot,
-  validation = TRUE
+  pc = 2,
+  validation = TRUE,
+  pls_ncomp_max = 3
 )
 
 # Total Mn
@@ -164,7 +176,9 @@ pls_Mn_total <- pls_ken_stone(
   spec_chem = spec_chem[!is.na(spec_chem$Mn_tot), ],
   ratio_val = 1/3,
   variable = Mn_tot,
-  validation = TRUE
+  pc = 2,
+  validation = TRUE,
+  pls_ncomp_max = 4
 )
 
 # Total Ca
@@ -172,7 +186,8 @@ pls_Ca_total <- pls_ken_stone(
   spec_chem = spec_chem[!is.na(spec_chem$Ca_tot), ],
   ratio_val = 1/3,
   variable = Ca_tot,
-  validation = TRUE
+  validation = TRUE,
+  pls_ncomp_max = 6
 )
 
 
@@ -188,10 +203,13 @@ pls_pH <- pls_ken_stone(
   spec_chem = spec_chem[!is.na(spec_chem$pH), ],
   ratio_val = 1/3,
   variable = pH,
-  validation = TRUE
+  validation = TRUE,
+  pc = 6,
+  pls_ncomp_max = 6
 )
 
 # Exchangable K
+# final number of components is 1 (pls_exch_K$finalModel$ncomp)!
 pls_exch_K <- pls_ken_stone(
   spec_chem = spec_chem[!is.na(spec_chem$ex_K), ],
   ratio_val = 1/3,
@@ -200,11 +218,14 @@ pls_exch_K <- pls_ken_stone(
 )
 
 # Exchangable Ca
+# pc = 5 lead to much worse predictions
 pls_exch_Ca <- pls_ken_stone(
   spec_chem = spec_chem[!is.na(spec_chem$ex_Ca), ],
   ratio_val = 1/3,
   variable = ex_Ca,
-  validation = TRUE
+  pc = 2,
+  validation = TRUE,
+  pls_ncomp_max = 5
 )
 
 # Exchangable Mg
@@ -212,7 +233,8 @@ pls_exch_Mg <- pls_ken_stone(
   spec_chem = spec_chem[!is.na(spec_chem$ex_Mg), ],
   ratio_val = 1/3,
   variable = ex_Mg,
-  validation = TRUE
+  validation = TRUE,
+  pls_ncomp_max = 2
 )
 
 # Exchangable Al
@@ -220,7 +242,8 @@ pls_exch_Al <- pls_ken_stone(
   spec_chem = spec_chem[!is.na(spec_chem$ex_Al), ],
   ratio_val = 1/3,
   variable = ex_Al,
-  validation = TRUE
+  validation = TRUE,
+  pls_ncomp_max = 5
 )
 
 # CEC_eff
@@ -231,7 +254,7 @@ pls_CEC <- pls_ken_stone(
   validation = TRUE,
   pc = 5,
   invert = FALSE,
-  ncomp_pls_max = 5
+  pls_ncomp_max = 5
 )
 
 # BS_eff
@@ -240,7 +263,8 @@ pls_BS <- pls_ken_stone(
   ratio_val = 1/3,
   variable = BS_eff,
   validation = TRUE,
-  print = TRUE
+  print = TRUE,
+  pls_ncomp_max = 5
 )
 
 
@@ -258,7 +282,7 @@ pls_C <- pls_ken_stone(
   validation = TRUE,
   invert = FALSE,
   pc = 6,
-  ncomp_pls_max = 6
+  pls_ncomp_max = 6
 )
 
 # Total N
@@ -267,21 +291,23 @@ pls_N <- pls_ken_stone(
   ratio_val = 1/3,
   variable = N,
   pc = 6,
-  ncomp_pls_max = 6
+  pls_ncomp_max = 6
 )
 
 # Total S
 pls_S <- pls_ken_stone(
   spec_chem = spec_chem[!is.na(spec_chem$S), ],
   ratio_val = 1/3,
-  variable = S
+  variable = S,
+  pls_ncomp_max = 2
 )
 
 # Total P
 pls_P <- pls_ken_stone(
   spec_chem = spec_chem[!is.na(spec_chem$P_tot), ],
   ratio_val = 1/3,
-  variable = P_tot
+  variable = P_tot,
+  pls_ncomp_max = 5
 )
 
 ## =============================================================================
@@ -296,7 +322,9 @@ pls_resin_P_log <- pls_ken_stone(
   spec_chem = spec_chem[!is.na(spec_chem$P_meas), ],
   ratio_val = 1/3,
   variable = log(P_meas),
-  validation = TRUE
+  validation = TRUE,
+  pc = 4,
+  pls_ncomp_max = 4
 )
 
 ## Models for DTPA-extractable micronutrients ==================================
@@ -306,10 +334,13 @@ pls_Fe_DTPA_log <- pls_ken_stone(
   spec_chem = spec_chem[!is.na(spec_chem$Fe_DTPA), ],
   ratio_val = 1/3,
   variable = log(Fe_DTPA),
-  validation = TRUE
+  validation = TRUE,
+  pc = 2,
+  pls_ncomp_max = 5
 )
 
 # DTPA-extractable Zn
+# Default optimal number of components is 3 -> might be too low
 pls_Zn_DTPA <- pls_ken_stone(
   spec_chem = spec_chem[!is.na(spec_chem$Zn_DTPA), ],
   ratio_val = 1/3,
@@ -318,22 +349,25 @@ pls_Zn_DTPA <- pls_ken_stone(
 )
 
 # DTPA-extractable Cu
+# Be careful with selection of pc = 8 -> predictions much worse!!!
 pls_Cu_DTPA <- pls_ken_stone(
   spec_chem = spec_chem[!is.na(spec_chem$Cu_DTPA), ],
   ratio_val = 1/3,
   variable = Cu_DTPA,
-  validation = TRUE
+  pc = 2,
+  validation = TRUE,
+  pls_ncomp_max = 8
 )
 
 # DTPA-extractable Mn
+# Selects per default 2 principal components -> Check how to specify more
+# Components
 pls_Mn_DTPA <- pls_ken_stone(
   spec_chem = spec_chem[!is.na(spec_chem$Mn_DTPA), ],
   ratio_val = 1/3,
   variable = Mn_DTPA,
   validation = TRUE
 )
-
-
 
 ################################################################################
 ## Write all pls models (R objects) into separate files
