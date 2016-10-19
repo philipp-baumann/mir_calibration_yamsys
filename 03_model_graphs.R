@@ -74,6 +74,9 @@ pls_Mn_DTPA <- readRDS("models/pls_Mn_DTPA.Rds")
 ## Graphical summary of the model evaluations
 ################################################################################
 
+# Load ggplot2 package
+library(ggplot2)
+
 ## Summary for soil properties =================================================
 
 # Function to extract ggplot graph element from pls model output list ----------
@@ -170,8 +173,8 @@ ylab_BS <- ylab("Base saturation [%]")
 xlab_C <- xlab(expression(paste("Obs. total C", " [g ", kg^-1, "]")))
 ylab_C <- ylab(expression(paste("Pred. total C", " [g ", kg^-1, "]")))
 # Total nitrogen
-xlab_N <- xlab(expression(paste("Total N", " [g ", kg^-1, "]")))
-ylab_N <- ylab(expression(paste("Total N", " [g ", kg^-1, "]")))
+xlab_N <- xlab(expression(paste("Obs. total N", " [g ", kg^-1, "]")))
+ylab_N <- ylab(expression(paste("Pred. total N", " [g ", kg^-1, "]")))
 # Total sulfur
 xlab_S <- xlab(expression(paste("Total S", " [mg ", kg^-1, "]")))
 ylab_S <- ylab(expression(paste("Total S", " [mg ", kg^-1, "]")))
@@ -232,10 +235,10 @@ list_pls_plot$pls_BS <- list_pls_plot$pls_BS +
 list_pls_plot$pls_CEC <- list_pls_plot$pls_CEC +
   xlab_CEC + ylab_CEC
 
-list_pls_plot$pls_soil_C_all <- list_pls_plot$pls_soil_C_all +
+list_pls_plot$pls_C <- list_pls_plot$pls_C +
   xlab_C + ylab_C
-list_pls_plot$pls_soil_N_all <- list_pls_plot$pls_soil_N_all +
-  xlab_N + ylab_N + xlim(c(0, 2.2)) + ylim(c(0, 2.2))
+list_pls_plot$pls_N <- list_pls_plot$pls_N +
+  xlab_N + ylab_N # + xlim(c(0, 2.2)) + ylim(c(0, 2.2))
 list_pls_plot$pls_soil_S_all <- list_pls_plot$pls_soil_S_all +
   xlab_S + ylab_S
 list_pls_plot$pls_P_total <- list_pls_plot$pls_P_total +
@@ -252,3 +255,167 @@ list_pls_plot$pls_Cu_DTPA <- list_pls_plot$pls_Cu_DTPA +
 list_pls_plot$pls_Mn_DTPA <- list_pls_plot$pls_Mn_DTPA +
   xlab_Mn_DTPA + ylab_Mn_DTPA
 
+# Arrange pls plots in panels, separate figures according to soil property
+# categories -------------------------------------------------------------------
+
+# Model selection for poster
+models_poster <- c(
+  "pls_C", "pls_N", "pls_CEC"
+)
+# Model selection for evaluation
+models_mineralogy <- c(
+  "pls_Fe_total", "pls_Si_total", "pls_Al_total", "pls_K_total", "pls_Ca_total",
+  "pls_Zn_total", "pls_Cu_total", "pls_Mn_total"
+)
+models_mineralogy_nutrition <- c(
+  "pls_pH", "pls_exch_K", "pls_exch_Ca", "pls_exch_Mg", "pls_exch_Al",
+  "pls_CEC", "pls_BS"
+)
+models_organic <- c(
+  "pls_C", "pls_N", "pls_S", "pls_P"
+)
+models_nutrition <- c(
+  "pls_resin_P_log", "pls_Fe_DTPA_log", "pls_Zn_DTPA", "pls_Cu_DTPA",
+  "pls_Mn_DTPA"
+)
+
+# Create ggplot2 grobs
+grob_list_poster <- lapply(
+  list_pls_plot[models_poster], ggplotGrob
+)
+grob_list_mineralogy <- lapply(
+  list_pls_plot[models_mineralogy], ggplotGrob
+)
+grob_list_mineralogy_nutrition <- lapply(
+  list_pls_plot[models_mineralogy_nutrition], ggplotGrob
+)
+grob_list_organic <- lapply(
+  list_pls_plot[models_organic], ggplotGrob
+)
+grob_list_nutrition <- lapply(
+  list_pls_plot[models_nutrition], ggplotGrob
+)
+
+
+# Print graphs using gtable_arrange function -----------------------------------
+
+library(gridExtra)
+library(grid)
+# Source function gtable_arrange provided in the <R> folder
+source("R/gtable_arrange.R")
+
+# Produce a pdf with model evaluation graphs in panels
+pdf(file = "out/figs/poster_models_soil.pdf",
+  width = 7, height = 5)
+gtable_arrange(ncol = 2, grobs = grob_list_poster, 
+  left = "Predicted",
+  bottom = "Observed")
+dev.off() 
+
+# Mineralogy
+pdf(file = "out/figs/models_mineralogy.pdf",
+  width = 7, height = 10)
+gtable_arrange(ncol = 2, grobs = grob_list_mineralogy, 
+  left = "Predicted",
+  bottom = "Observed")
+dev.off()
+
+# Mineralogy and plant nutrition
+pdf(file = "out/figs/models_mineralogy_nutrition.pdf",
+  width = 7, height = 10)
+gtable_arrange(ncol = 2, grobs = grob_list_mineralogy_nutrition, 
+  left = "Predicted",
+  bottom = "Observed")
+dev.off()
+
+# Organic matter
+pdf(file = "out/figs/models_organic.pdf",
+  width = 7, height = 5)
+gtable_arrange(ncol = 2, grobs = grob_list_organic,
+  left = "Predicted",
+  bottom = "Observed")
+dev.off()
+
+# Nutrition
+# Organic matter
+pdf(file = "out/figs/models_nutrition.pdf",
+  width = 7, height = 8)
+gtable_arrange(ncol = 2, grobs = grob_list_nutrition, 
+  left = "Predicted",
+  bottom = "Observed")
+dev.off()
+
+
+
+################################################################################
+## Maps of sampled fields within the four pilot sites
+################################################################################
+
+## Read sampling metadata ======================================================
+# Alternative file readers
+library(readr)
+
+# Read field data from Léo
+data_field_lo <- read_csv(file = "data/sampling/data_field_lo.csv" )
+# Midebdo
+data_field_mo <- read_csv(file = "data/sampling/data_field_mo.csv" )
+# Soubré
+data_field_sb <- read_csv(file = "data/sampling/data_field_sb.csv" )
+# Tiéningboué
+# Set column classes
+cls <- c(gps_long = "numeric", gps_lat = "numeric")
+data_field_tb <- read_csv(file = "data/sampling/data_field_tb.csv",
+  col_types = list(
+    gps_long = col_double(),
+    gps_lat = col_double()
+))
+
+# Plot sampling distribution ===================================================
+library(dplyr)
+
+# Tiéningboué
+pdf(file = "out/figs/poster_sampling_tb.pdf", width = 4, height = 3)
+# make pretty breaks
+gps_long_brk <- pretty(data_field_tb$gps_long, n = 4)
+gps_lat_brk <- pretty(data_field_tb$gps_lat, n = 4)
+# Rename labels on the fly with a lookup character vector
+# See http://docs.ggplot2.org/current/as_labeller.html
+to_string <- as_labeller(c(`tb` = "Tiéningboué, Côte d'Ivoire"))
+# Plot graph of sampling distribution
+dplyr::filter(data_field_tb, mat_type == "soil_cal") %>% 
+  ggplot(data = ., aes(x = gps_long, y = gps_lat)) +
+  coord_fixed(ratio = 1) +
+  geom_point(aes(colour = species, shape = species)) +
+  xlab("E (UTM) [m]") +
+  ylab("N (UTM) [m]") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_colour_discrete(name = "") + 
+  scale_shape_discrete(name = "") +
+  scale_x_continuous(breaks = gps_long_brk) +
+  scale_y_continuous(breaks = gps_lat_brk) +
+  facet_wrap("site", labeller = to_string) +
+  theme(legend.text = element_text(face = "italic"))
+dev.off()
+
+
+################################################################################
+## Plots of spectra
+################################################################################
+
+library(simplerspec)
+
+# Reading, averaging, outlier and outlier removal of spectra -------------------
+soilspec_plotting <- read_spectra(path = "data/spectra/alpha_txt/") %>% 
+  average_spectra() %>%
+  # do not remove outliers
+  remove_outliers(remove = FALSE)
+
+# Create plots of soil spectra -------------------------------------------------
+
+# Source spectral plotting function
+source(file = "R/plot-spectra.R")
+pdf(file = "out/figs/poster_soilspec.pdf", width = 6, height = 1.5)
+plot_spectra(spc = soilspec_plotting$MIR_mean, no_group = TRUE) +
+  theme(legend.position = "none")
+dev.off()
