@@ -1,0 +1,254 @@
+%!TEX program = XeLaTeX
+
+
+%% Klassen-Optionen
+\documentclass[11pt,%
+  abstracton, english]
+	{report}
+
+%% Unverzichtbare Pakte
+\usepackage[utf8]{inputenc} % Eingabekodierung auswählen
+\usepackage[T1]{fontenc}    % Fontkodierung auswählen
+\usepackage[ngerman]{babel} % Sprache Deutsch mit neuer Rechtschreibung 
+								% einstellen
+\usepackage{fixltx2e}       % Verbessert einige Kernkompetenzen von LaTeX2e
+
+
+%% Schriften laden
+\usepackage{lmodern, hfoldsty} % Lädt die Latin Modern als Grund- und 	
+								% Formelschrift
+\renewcommand{\sfdefault}{%
+	\rmdefault}         	% Überschriften mit Serifen
+	
+%% Mathematik-Pakete laden
+\usepackage{amsmath}		% Paket der American Mathematical Society laden
+\usepackage[load-configurations=abbreviations]
+	{siunitx}		
+							% Korrekte Einheiten nach SI
+								% z. B. mit Befehl \SI{300}{nm}
+\AtBeginDocument{\sisetup{math-rm=\mathrm, text-rm=\rmfamily}}
+
+%% Chemie-Pakete laden
+\usepackage{mhchem}			% Chemische Summenformeln und Gleichungen
+								%  z. B.  mit \ce{}
+     
+%% Typografisch empfehlenswerte Pakete
+\usepackage{typearea}       % Berechnet den zur Schriftart passenden
+								% Satzspiegel (DIV-Wert)
+\usepackage{% 
+	ellipsis,           	% Korrigiert den Weissraum um Auslassungspunkte
+	ragged2e,           	% Ermöglicht Flattersatz mit Silbentrennung
+	marginnote}         	% Für bessere Randnotizen mit \marginnote statt
+		            			% \marginline
+\usepackage{microtype}      % Lädt das Paket Microtype für typographische
+								% Feinanpassungen, z. B. optischen Rand-
+								% ausgleich und Character Expansion
+                
+\usepackage{booktabs}
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+
+<<r setup>>=
+knitr::opts_chunk$set(cache=TRUE, message=FALSE)
+@
+
+<<r, include=TRUE>>=
+library(xtable)
+library(ggplot2)
+
+## =============================================================================
+## 1: Soil properties in the group related to "Mineralogy":
+## Total Fe, total Si, total Al, total K, total Zn, total Cu,
+## total Mn
+## =============================================================================
+
+pls_Fe_total <- readRDS("models/pls_Fe_total.Rds")
+pls_Si_total <- readRDS("models/pls_Si_total.Rds")
+pls_Al_total <- readRDS("models/pls_Al_total.Rds")
+pls_K_total <- readRDS("models/pls_K_total.Rds")
+pls_Ca_total <- readRDS("models/pls_Ca_total.Rds")
+pls_Zn_total <- readRDS("models/pls_Zn_total.Rds")
+pls_Cu_total <- readRDS("models/pls_Cu_total.Rds")
+pls_Mn_total <- readRDS("models/pls_Mn_total.Rds")
+
+## =============================================================================
+## 2: Soil properties in the group related to
+## "Mineralogy/Plant Nutrition":
+## pH, exchangeable K, exchangeable Ca, exchangeable Mg,
+## exchangeable Al, CEC, base saturation
+## =============================================================================
+
+pls_pH <- readRDS("models/pls_pH.Rds")
+pls_exch_K <- readRDS("models/pls_exch_K.Rds")
+pls_exch_Ca <- readRDS("models/pls_exch_Ca.Rds")
+pls_exch_Mg <- readRDS("models/pls_exch_Mg.Rds")
+pls_exch_Al <- readRDS("models/pls_exch_Al.Rds")
+pls_CEC <- readRDS("models/pls_CEC.Rds")
+pls_BS <- readRDS("models/pls_BS.Rds")
+
+
+## =============================================================================
+## 3: Soil properties in the group related to
+## "Organic Matter":
+## Total C, total N, total S, total P
+## =============================================================================
+
+pls_C <- readRDS("models/pls_C.Rds")
+pls_N <- readRDS("models/pls_N.Rds")
+pls_S <- readRDS("models/pls_S.Rds")
+pls_P <- readRDS("models/pls_P.Rds")
+
+## =============================================================================
+## 4: Soil properties in the group related to
+## "Plant Nutrition":
+## Resin extractable P, DTPA Fe, DTPA Zn, DTPA Cu, DTPA Mn
+## =============================================================================
+
+pls_resin_P_log <- readRDS("models/pls_resin_P_log.Rds")
+pls_Fe_DTPA_log <- readRDS("models/pls_Fe_DTPA_log.Rds")
+pls_Zn_DTPA <- readRDS("models/pls_Zn_DTPA.Rds")
+pls_Cu_DTPA <- readRDS("models/pls_Cu_DTPA.Rds")
+pls_Mn_DTPA <- readRDS("models/pls_Mn_DTPA.Rds")
+
+list_pls_stat <- list(
+  pls_Fe_total = pls_Fe_total,
+  pls_Si_total = pls_Si_total,
+  pls_Al_total = pls_Al_total,
+  pls_K_total = pls_K_total,
+  pls_Ca_total = pls_Ca_total,
+  pls_Zn_total = pls_Zn_total,
+  pls_Cu_total = pls_Cu_total,
+  pls_Mn_total = pls_Mn_total,
+  pls_pH = pls_pH,
+  pls_exch_K = pls_exch_K,
+  pls_exch_Ca = pls_exch_Ca,
+  pls_exch_Mg = pls_exch_Mg,
+  pls_exch_Al = pls_exch_Al,
+  pls_CEC = pls_CEC,
+  pls_BS = pls_BS,
+  pls_C = pls_C,
+  pls_N = pls_N,
+  pls_S = pls_S,
+  pls_P = pls_P,
+  pls_resin_P_log = pls_resin_P_log,
+  pls_Fe_DTPA_log = pls_Fe_DTPA_log,
+  pls_Zn_DTPA = pls_Zn_DTPA,
+  pls_Cu_DTPA = pls_Cu_DTPA,
+  pls_Mn_DTPA = pls_Mn_DTPA
+)
+
+extract_pls_stats <- function(list_in) {
+  # get stat data frame of each element in list_in
+  list_stat <- lapply(list_in, function(x) x$stat)
+  # combine list of different pls model stats into one data
+  # frame
+  df_stat <- do.call(rbind, list_stat)
+  df_stat <- df_stat[, c("variable", "dataType", "n", "mean_obs",
+    "median_obs", "min_obs", "max_obs", "CV")]
+  return(df_stat)
+}
+# 
+pls_data_summary <- extract_pls_stats(list_pls_stat)
+# Link to print colnames in latex math
+# http://stackoverflow.com/questions/8732712/handling-latex-backslashes-in-xtable
+colnames(pls_data_summary) <- c(
+  "Property",
+  "Data set",
+  "$n$",
+  "Mean",
+  "Median",
+  "Min",
+  "Max",
+  "CV [\\SI{}{\\percent}]"
+)
+
+# rename Property names and include units
+property_names <- c(
+  'C' = "Total Carbon [\\SI{}{g kg^{-1}}]",
+  'N' = "Total Nitrogen [\\SI{}{g kg^{-1}}]",
+  'S' = "Total Sulfur [\\SI{}{mg kg^{-1}}]",
+  'P_tot' = "Total P [\\SI{}{mg kg^{-1}}]",
+  'pH' = "pH\\textsubscript{\\ce{H2O}}",
+  'log(P_meas)' = "log(P resin) [\\SI{}{mg kg^{-1}}]",
+  'ex_K' = "K (exch.) [\\SI{}{mg kg^{-1}}]",
+  'ex_Ca' = "Ca (exch.) [\\SI{}{mg kg^{-1}}]",
+  'ex_Mg' = "Mg (exch.) [\\SI{}{mg kg^{-1}}]",
+  'CEC_eff' = "CEC\\textsubscript{eff} [\\SI{}{cmol(+) kg^{-1}}]",
+  'log(Fe_DTPA)' = "log(Fe(DTPA)) [\\SI{}{mg kg^{-1}}]",
+  'Mn_DTPA' = "Mn(DTPA) [\\SI{}{mg kg^{-1}}]",
+  'Zn_DTPA' = "Zn(DTPA) [\\SI{}{mg kg^{-1}}]",
+  'Cu_DTPA' = "Cu(DTPA) [\\SI{}{mg kg^{-1}}]",
+  'Fe_tot' = "Total Fe [\\SI{}{g kg^{-1}}]",
+  'Si_tot' = "Total Si [\\SI{}{g kg^{-1}}]",
+  'Al_tot' = "Total Al [\\SI{}{g kg^{-1}}]",
+  'K_tot' = "Total K [\\SI{}{g kg^{-1}}]",
+  'Ca_tot' = "Total Ca [\\SI{}{g kg^{-1}}]",
+  'Zn_tot' = "Total Zn [\\SI{}{mg kg^{-1}}]",
+  'Cu_tot' = "Total Cu [\\SI{}{mg kg^{-1}}]",
+  'Mn_tot' = "Total Mn [\\SI{}{mg kg^{-1}}]",
+  'pH' = "pH\\textsubscript{\\ce{H2O}}",
+  'ex_K' = "K (exch.) [\\SI{}{mg kg^{-1}}]",
+  'ex_Ca' = "Ca (exch.) [\\SI{}{mg kg^{-1}}]",
+  'ex_Mg' = "Mg (exch.) [\\SI{}{mg kg^{-1}}]",
+  'ex_Al' = "Al (exch.) [\\SI{}{mg kg^{-1}}]",
+  'CEC_eff' = "CEC\\textsubscript{eff} [\\SI{}{cmol(+) kg^{-1}}]",
+  'BS_eff' = "BS [\\%]"
+)
+pls_data_summary$Property <- plyr::revalue(
+  pls_data_summary$Property, property_names
+)
+@
+
+<<r, results = 'tex'>>=
+library(xtable)
+# Delete each 2nd row for each of the properties in 
+# column property
+# Delete each 2nd row for each of the properties in 
+# column property
+pls_data_summary$Property[seq(2, nrow(pls_data_summary), 2)] <- as.factor(c(""))
+# Number of digits per column and row
+mdat_summary <- matrix(c(
+  rep(c(rep(0, 4), rep(1, 4), 0), 2), # Fe tot
+  rep(c(rep(0, 4), rep(0, 4), 0), 2), #
+  rep(c(rep(0, 4), rep(0, 4), 0), 2), #
+  rep(c(rep(0, 4), rep(1, 4), 0), 2), #
+  rep(c(rep(0, 4), rep(1, 4), 0), 2), #
+  rep(c(rep(0, 4), rep(1, 4), 0), 2), #
+  rep(c(rep(0, 4), rep(1, 4), 0), 2), #
+  rep(c(rep(0, 4), rep(0, 4), 0), 2), #
+  rep(c(rep(0, 4), rep(1, 4), 0), 2), #
+  rep(c(rep(0, 4), rep(0, 4), 0), 2), #
+  rep(c(rep(0, 4), rep(0, 4), 0), 2), #
+  rep(c(rep(0, 4), rep(0, 4), 0), 2), #
+  rep(c(rep(0, 4), rep(1, 4), 0), 2), #
+  rep(c(rep(0, 4), rep(1, 4), 0), 2), #
+  rep(c(rep(0, 4), rep(0, 4), 0), 2), # BS_eff (15 rows..)
+  rep(
+    rep(c(rep(0, 4), rep(0, 4), 0), 2), 9)
+  ), 
+  nrow = nrow(pls_data_summary), ncol = ncol(pls_data_summary) + 1, 
+  byrow = TRUE # change values
+) 
+print(xtable(pls_data_summary, digits = mdat_summary,
+  caption = 'Soil chemical properties for calibration and validation'),
+  include.rownames = FALSE,
+  sanitize.colnames.function = identity,
+  sanitize.text.function = identity,
+  size = "footnotesize",
+  booktabs = TRUE,
+  caption.placement = 'top',
+  add.to.row = list(
+    pos = list(2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24),
+    command = rep("\\midrule{}", 12)
+  )
+)
+@
+
+
+
+
+
+
+
+\end{document}
