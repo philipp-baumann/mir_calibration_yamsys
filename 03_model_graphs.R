@@ -355,25 +355,26 @@ dev.off()
 # Alternative file readers
 library(readr)
 
-# Read field data from Léo
-data_field_lo <- read_csv(file = "data/sampling/data_field_lo.csv" )
-# Midebdo
-data_field_mo <- read_csv(file = "data/sampling/data_field_mo.csv" )
-# Soubré
-data_field_sb <- read_csv(file = "data/sampling/data_field_sb.csv" )
-# Tiéningboué
-# Set column classes
-cls <- c(gps_long = "numeric", gps_lat = "numeric")
-data_field_tb <- read_csv(file = "data/sampling/data_field_tb.csv",
-  col_types = list(
-    gps_long = col_double(),
-    gps_lat = col_double()
-))
+# Read files and set column classes --------------------------------------------
 
-# Plot sampling distribution ===================================================
+# Site data from Léo
+data_field_lo <- read_csv(file = "data/sampling/data_field_lo.csv",
+  col_types = list(gps_long = col_double(), gps_lat = col_double()))
+# Site data from Midebdo
+data_field_mo <- read_csv(file = "data/sampling/data_field_mo.csv",
+  col_types = list(gps_long = col_double(), gps_lat = col_double()))
+# Site data from Soubré
+data_field_sb <- read_csv(file = "data/sampling/data_field_sb.csv",
+  col_types = list(gps_long = col_double(),
+  gps_lat = col_double()))
+# Site data from Tiéningboué
+data_field_tb <- read_csv(file = "data/sampling/data_field_tb.csv",
+  col_types = list(gps_long = col_double(), gps_lat = col_double()))
+
+## Plot sampling distribution ==================================================
 library(dplyr)
 
-# Tiéningboué
+# Tiéningboué, Côte d'Ivoire  --------------------------------------------------
 pdf(file = "out/figs/poster_sampling_tb.pdf", width = 4, height = 3)
 # make pretty breaks
 gps_long_brk <- pretty(data_field_tb$gps_long, n = 4)
@@ -382,7 +383,7 @@ gps_lat_brk <- pretty(data_field_tb$gps_lat, n = 4)
 # See http://docs.ggplot2.org/current/as_labeller.html
 to_string <- as_labeller(c(`tb` = "Tiéningboué, Côte d'Ivoire"))
 # Plot graph of sampling distribution
-dplyr::filter(data_field_tb, mat_type == "soil_cal") %>% 
+p_sampling_tb <- dplyr::filter(data_field_tb, mat_type == "soil_cal") %>% 
   ggplot(data = ., aes(x = gps_long, y = gps_lat)) +
   coord_fixed(ratio = 1) +
   geom_point(aes(colour = species, shape = species)) +
@@ -396,8 +397,102 @@ dplyr::filter(data_field_tb, mat_type == "soil_cal") %>%
   scale_y_continuous(breaks = gps_lat_brk) +
   facet_wrap("site", labeller = to_string) +
   theme(legend.text = element_text(face = "italic"))
+p_sampling_tb + guides(colour = "none", shape = "none")
 dev.off()
 
+# Lilyo, Côte d'Ivoire  --------------------------------------------------------
+pdf(file = "out/figs/poster_sampling_sb.pdf", width = 4, height = 3)
+# make pretty breaks
+gps_long_brk <- pretty(data_field_sb$gps_long, n = 4)
+gps_lat_brk <- pretty(data_field_sb$gps_lat, n = 4)
+# Rename labels on the fly with a lookup character vector
+# See http://docs.ggplot2.org/current/as_labeller.html
+to_string <- as_labeller(c(`sb` = "Lilyo, Côte d'Ivoire"))
+# Plot graph of sampling distribution
+p_sampling_sb <- dplyr::filter(data_field_sb, mat_type == "soil_cal") %>% 
+  ggplot(data = ., aes(x = gps_long, y = gps_lat)) +
+  coord_fixed(ratio = 1) +
+  geom_point(aes(colour = species, shape = species)) +
+  xlab("E (UTM) [m]") +
+  ylab("N (UTM) [m]") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_colour_discrete(name = "") + 
+  scale_shape_discrete(name = "") +
+  scale_x_continuous(breaks = gps_long_brk) +
+  scale_y_continuous(breaks = gps_lat_brk) +
+  facet_wrap("site", labeller = to_string) +
+  guides(colour = "none", shape = "none") +
+  theme(legend.text = element_text(face = "italic"))
+p_sampling_sb
+dev.off()
+
+# Léo, Burkina Faso ----------------------------------------------------
+pdf(file = "out/figs/poster_sampling_lo.pdf", width = 4, height = 3)
+# make pretty breaks
+gps_long_brk <- pretty(data_field_lo$gps_long, n = 4)
+gps_lat_brk <- pretty(data_field_lo$gps_lat, n = 4)
+# Rename labels on the fly with a lookup character vector
+# See http://docs.ggplot2.org/current/as_labeller.html
+to_string <- as_labeller(c(`lo` = "Léo, Burkina Faso"))
+# Plot graph of sampling distribution
+p_sampling_lo <- dplyr::filter(data_field_lo, mat_type == "soil_cal") %>% 
+  ggplot(data = ., aes(x = gps_long, y = gps_lat)) +
+  coord_fixed(ratio = 1) +
+  geom_point(aes(colour = species, shape = species)) +
+  xlab("E (UTM) [m]") +
+  ylab("N (UTM) [m]") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_colour_discrete(name = "") + 
+  scale_shape_discrete(name = "") +
+  scale_x_continuous(breaks = gps_long_brk) +
+  scale_y_continuous(breaks = gps_lat_brk) +
+  facet_wrap("site", labeller = to_string) +
+  guides(colour = "none", shape = "none") +
+  theme(legend.text = element_text(face = "italic"))
+p_sampling_lo
+dev.off()
+
+# Midebdo, Burkina Faso --------------------------------------------------------
+pdf(file = "out/figs/poster_sampling_mo.pdf", width = 4, height = 3)
+# make pretty breaks
+gps_long_brk <- pretty(data_field_mo$gps_long, n = 4)
+gps_lat_brk <- pretty(data_field_mo$gps_lat, n = 4)
+# Rename labels on the fly with a lookup character vector
+# See http://docs.ggplot2.org/current/as_labeller.html
+to_string <- as_labeller(c(`mo` = "Midebdo, Burkina Faso"))
+# Plot graph of sampling distribution
+p_sampling_mo <- dplyr::filter(data_field_mo, mat_type == "soil_cal") %>%
+  ggplot(data = ., aes(x = gps_long, y = gps_lat)) +
+  coord_fixed(ratio = 1) +
+  geom_point(aes(colour = species, shape = species)) +
+  xlab("E (UTM) [m]") +
+  ylab("N (UTM) [m]") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_colour_discrete(name = "") + 
+  scale_shape_discrete(name = "") +
+  scale_x_continuous(breaks = gps_long_brk) +
+  scale_y_continuous(breaks = gps_lat_brk) +
+  facet_wrap("site", labeller = to_string) +
+  guides(colour = "none", shape = "none") +
+  theme(legend.text = element_text(face = "italic"))
+p_sampling_mo
+dev.off()
+
+# Arrange sampling distribution graphs in four panels --------------------------
+
+# Graph in 4 panels
+p_sampling <- cowplot::plot_grid(
+  p_sampling_sb, p_sampling_tb, p_sampling_mo, p_sampling_lo)
+
+# Save as pdf
+ggsave(filename = "out/figs/sampling_distribution.pdf",
+  p_sampling, width = 5.5, height = 5.5)
+
+# Save graph of legend
+ggsave(file = "out/figs/sampling_legend.pdf", p_sampling_tb)
 
 ################################################################################
 ## Plots of spectra
@@ -414,7 +509,7 @@ soilspec_plotting <- read_spectra(path = "data/spectra/alpha_txt/") %>%
 # Create plots of soil spectra -------------------------------------------------
 
 # Source spectral plotting function
-source(file = "R/plot-spectra.R")
+source(file = "R/plot-spc.R")
 pdf(file = "out/figs/poster_soilspec.pdf", width = 6, height = 1.5)
 plot_spectra(spc = soilspec_plotting$MIR_mean, no_group = TRUE) +
   theme(legend.position = "none")
