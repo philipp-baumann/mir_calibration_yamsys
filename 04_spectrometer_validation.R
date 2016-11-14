@@ -137,8 +137,170 @@ summary_df(df = as.data.frame(pred_chem), x = "pls_C", y = "C")
 
 ## BF_mo_08_soil_cal has missing values
 soilspec_tbl_esal %>% 
-  filter(sample_id == "BF_mo_08_soil_cal") %>% 
+  filter(sample_id == "BF_mo_08_soil_cal") %>%
   select(spc_pre) %>% .[[1]]
 
 # Reaading of this file doesn't work !!!! -> wrong wavenumber
 spc_list_esal[["BF_mo_08_soil_cal.2"]]
+
+
+################################################################################
+## Compare sets of preprocessed spectra from ETH Zürich ALPHA and 
+## Côte d'Ivoire ALPHA spectrometer
+################################################################################
+
+# Côte d'Ivoire (esal)
+soilspec_esal <- soilspec_tbl_esal %>% 
+  select(sample_id, spc_pre) %>%
+  # add new column "instrument_location"
+  mutate(instrument_location = rep("esal", nrow(.)))
+
+# ETH Zürich (eth)
+soilspec_eth <- soilspec_tbl_eth %>% 
+  select(sample_id, spc_pre) %>% 
+  # add new column "instrument_location"
+  mutate(instrument_location = rep("eth", nrow(.))) %>% 
+  # select only samples that occur were also rescanned in Côte d'Ivoire
+  .[.$sample_id %in% soilspec_esal$sample_id, ]
+
+# Combine ETH and ESAL spectrometer data (bind rows)
+soilspec_eth_esal <- rbind(soilspec_esal, soilspec_eth)
+
+# Define new function to calculate and plot 
+# differences between preproceses spectral tibbles of the two instruments ------
+
+diff_spc <- function(spc_tbl, y, align_by, compare_by, slice = TRUE,
+                     format_out = "long",
+                     xlab = expression(paste("Wavenumber [", cm^-1, "]")),
+                     ylab = "Ratio of first derivatives of absorbance") {
+  
+  # (0) Group by factors and slice
+  group_cols <- c(align_by, compare_by)
+  if (slice == TRUE) {
+    spc_tbl <- purrr::slice_rows(spc_tbl, group_cols) %>% 
+      slice(1L)
+      # apply function to each slice
+      # purrr::by_slice(1L)
+  } 
+  # (1) Gather spectra into one data.table
+  if(y == "spc") {
+    # raw spectra are not yet data.tables and extraction is done alternatively
+    # via do.call(rbind, list) -> a little bit slower
+    dt <- data.table::data.table(do.call(rbind, spc_tbl[, y][[y]]))
+  } else {
+    dt <- data.table::rbindlist(spc_tbl[, y][[y]])
+  }
+  # (2) Extract ID variable and append it to the data.table
+  id <- spc_tbl[, align_by][[align_by]]
+  dt <- dt[,id:=id]
+  # Define variable to compare spectra by
+  compare <- spc_tbl[, compare_by][[compare_by]]
+  dt <- dt[, compare:=compare]
+  if(format_out == "long") {
+  # (3) Convert data.table from wide to long form
+  # Omit id
+    dt_long <- data.table::melt(
+      dt, measure=names(dt)[!names(dt) %in% c("id", "compare")]
+    )
+    # Convert variable column from factor to numeric
+    dt_long[, variable := as.numeric(as.character(variable))][]
+  } else { # if not long
+    dt[]
+  }
+  # (4) Split data table by `compare_by` column -> results in data.frame
+  df <- split(dt, compare)
+  # Define new id
+  id <- df[[1]]$id
+  # (5) Calculate preprocessed absorbance ratio between the two spectrometer
+  # locations
+  df_ratio <- purrr::map2_df(
+    df[[1]][, -c("compare", "id"), ],
+    df[[2]][, -c("compare", "id"), ], 
+    `/`)
+  # Save name of comparison method as vector
+  comparison_metric <- rep(paste(
+    unique(df[[1]]$compare[1]), 
+    "/",
+    unique(df[[2]]$compare[1])), 
+    nrow(df[[1]]))
+  # Transform into data.table and add sample_id and description of comparison
+  # measure
+  dt_ratio <- data.table::data.table(df_ratio)
+  dt_ratio[, c("id", "comparison_metric") := list(id, comparison_metric), ][]
+  # (6) Plot ratio of preprocessed spectra
+  # Convert dt_ratio into long form
+  dt_ratio_long <- data.table::melt(
+    dt_ratio, measure=names(dt_ratio)[!names(dt_ratio) %in%
+      c("id", "comparison_metric")]
+  )
+  # Convert variable column from factor to numeric
+  dt_ratio_long <- dt_ratio_long[, 
+    variable := as.numeric(as.character(variable))]
+  # Define nice breaks for x axis
+  brk_ratio  <- pretty(as.numeric(names(dt_ratio)[!names(dt_ratio) %in%
+    c("id", "comparison_metric")]), n = 10)
+  # ggplot2 plot
+  p_ratio <- ggplot(dt_ratio_long, aes(variable, value)) +  # group = group)) +
+    labs(x = xlab, y = ylab) +
+    theme_bw() +
+    scale_x_reverse(breaks = brk_ratio) +
+    geom_line(aes(colour = comparison_metric), colour = "black",
+      alpha = 1, size = 0.2) +
+    # scale_color_manual(values = "black")
+    # scale_color_manual(values = rep("black", nrow(dt_ratio))) +
+    # Remove legend
+    # guides(colour = FALSE) +
+    geom_hline(yintercept = 1, colour = "red")
+  p_ratio
+}
+
+# Test function
+spc_difference <- diff_spc(
+  soilspec_eth_esal, 
+  y = "spc_pre",
+  # implement multiple by's
+  align_by = "sample_id",
+  compare_by = "instrument_location",
+  format_out = "wide")
+# Save ratio plot in pdf
+ggplot2::ggsave("out/figs/prepr_abs_ratio_eth_esal.pdf", spc_difference)
+
+# Print only from -5 to 5 (adapt y axis scale)
+spc_difference_small_yscale <- spc_difference +
+  ylim(c(-5, 5)) +
+  geom_hline(yintercept = 1, colour = "red")
+# Save plot
+ggplot2::ggsave("out/figs/prepr_abs_ratio_eth_esal_small_scale.pdf",
+  spc_difference_small_yscale)
+
+# Check data structure
+str(spc_difference)
+
+# Work with purrr
+spc_compare <- spc_difference %>% 
+  split(.$compare) %>%
+  names()
+  map2(.[, -c("compare", "id"), ], `/`)
+
+spc_difference_eth <- spc_difference[compare == "eth"]
+spc_difference_esal <- spc_difference[compare == "esal"]
+
+map2_df(
+  spc_difference_eth[, -c("compare", "id"), ], 
+  spc_difference_esal[, -c("compare", "id"), ], `/`)
+
+# Divide columns 
+library(data.table)
+for(j in cols){
+  set(dt, i=NULL, j=j, value= dt[[j]]/dt[[j]][rownum])
+}
+
+# Use purrr
+mtcars %>%
+  split(.$cyl) %>%
+  map(~ lm(mpg ~ wt, data = .)) %>%
+  map(summary) %>%
+  map_dbl("r.squared")
+
+# Fixed and constant arguments
+Map(function(x, w) weighted.mean(x, w, na.rm = TRUE), xs, ws)
