@@ -23,7 +23,7 @@
 # Remove all R objects from memory
 rm(list = ls())
 
-# Load simplerspec package for spectral model development helper functions
+# Load simplerspec package for spectral model development wrapper functions
 require(simplerspec)
 # Load tidyverse package: loads packages frequently used for data manipulation,
 # data tidying, import, and plotting
@@ -340,6 +340,154 @@ pls_Mn_DTPA <- pls_ken_stone(
   validation = TRUE
 )
 
+
+## =============================================================================
+## 5: Texture models: data are measured by IITA in Cameroon
+## =============================================================================
+
+# Model for sand
+pls_sand <- pls_ken_stone(
+  spec_chem = spec_chem[!is.na(spec_chem$sand), ],
+  validation = TRUE,
+  ratio_val = 1/3,
+  variable = sand,
+  pls_ncomp_max = 7
+)
+# Cross-validated model for sand
+pls_sand_cv <- pls_ken_stone(
+  spec_chem = spec_chem[!is.na(spec_chem$sand), ],
+  validation = FALSE,
+  variable = sand,
+  pls_ncomp_max = 7,
+  cv = "LOOCV"
+)
+
+# Model for clay
+pls_clay <- pls_ken_stone(
+  spec_chem = spec_chem[!is.na(spec_chem$clay), ],
+  validation = TRUE,
+  ratio_val = 1/3,
+  variable = clay,
+  pls_ncomp_max = 7
+)
+# Cross-validated model for clay
+pls_clay_cv <- pls_ken_stone(
+  spec_chem = spec_chem[!is.na(spec_chem$clay), ],
+  variable = clay,
+  validation = FALSE,
+  pls_ncomp_max = 7,
+  cv = "LOOCV"
+)
+
+# Model for silt
+pls_silt <- pls_ken_stone(
+  spec_chem = spec_chem[!is.na(spec_chem$silt), ],
+  validation = TRUE,
+  ratio_val = 1/3,
+  variable = silt,
+  pls_ncomp_max = 7
+)
+
+# Variable selection for sand --------------------------------------------------
+
+# Quartz bands: 1790 cm–1, 1870cm–1; resample spectra by only taking into
+# account quartz bands
+soilspec_texture <- spc_list_eth %>%
+  gather_spc() %>% 
+  resample_spc(wn_lower = 1750, wn_upper = 2000, wn_interval = 2) %>%
+  average_spc() %>%
+  preprocess_spc(select = "sg_1_w21")
+# Plot spectra
+plot_spc(spc_tbl = soilspec_texture, y = "spc_pre", by = "sample_id",
+  graph_id_1 = "texture")
+# Join spectra tibble and chemical reference analysis tibble
+spec_chem_texture <- join_spc_chem(
+  spc_tbl = soilspec_texture , chem_tbl = soilchem_tbl, by = "sample_id")
+# Adapted model for sand
+pls_sand_vsel <- pls_ken_stone(
+  spec_chem = spec_chem_texture[!is.na(spec_chem_texture$sand), ],
+  validation = FALSE,
+  cv = "LOOCV",
+  variable = sand,
+  pls_ncomp_max = 7
+)
+# remove smple below 60% sand
+spec_chem_sand60 <- spec_chem_texture %>% filter(sand >= 60)
+# Refit model
+pls_sand_60 <- pls_ken_stone(
+  spec_chem = spec_chem_sand60[!is.na(spec_chem_sand60$sand), ],
+  validation = FALSE,
+  cv = "LOOCV",
+  variable = sand,
+  pls_ncomp_max = 7
+)
+# Adapted model for silt
+pls_silt_vsel <- pls_ken_stone(
+  spec_chem = spec_chem_texture[!is.na(spec_chem_texture$silt), ],
+  validation = FALSE,
+  ratio_val = 1/3,
+  cv = "LOOCV",
+  variable = silt,
+  pls_ncomp_max = 7
+)
+
+# Experiment with alternative preprocessing: use combination of 
+# Savitzky-Golay (SG) and multiplicative scatter correction (MSC) --------------
+
+# Process spectra
+soilspec_msc <- spc_list_eth %>%
+  gather_spc() %>% 
+  resample_spc(wn_lower = 500, wn_upper = 3996, wn_interval = 2) %>%
+  average_spc() %>%
+  # new option: use Savitzky-Golay with polynomial of 3rd degree, a window 
+  # size of 21 and a fist derivative followed by MSC 
+  # (Column means of preprocessed spectra for the reference spectrum)
+  preprocess_spc(select = "sg_1_w21_msc")
+# Use second derivative Savitzky-Golay and MSC
+soilspec_msc2 <- spc_list_eth %>%
+  gather_spc() %>% 
+  resample_spc(wn_lower = 500, wn_upper = 3996, wn_interval = 2) %>%
+  average_spc() %>%
+  # new option: use Savitzky-Golay with polynomial of 3rd degree, a window 
+  # size of 21 and a fist derivative followed by MSC 
+  # (Column means of preprocessed spectra for the reference spectrum)
+  preprocess_spc(select = "sg_2_w21_msc")
+# Plot spectral tibble as test
+plot_spc(spc_tbl = soilspec_msc, y = "spc_pre", by = "sample_id")
+# Combine with reference analysis data set
+spec_chem_msc <- join_spc_chem(
+  spc_tbl = soilspec_msc , chem_tbl = soilchem_tbl, by = "sample_id")
+spec_chem_msc2 <- join_spc_chem(
+  spc_tbl = soilspec_msc2 , chem_tbl = soilchem_tbl, by = "sample_id")
+# Build an alternative sand content model using SG and MSC 
+pls_sand_msc <- pls_ken_stone(
+  spec_chem = spec_chem_msc[!is.na(spec_chem_msc$sand), ],
+  validation = TRUE,
+  ratio_val = 1/3,
+  variable = sand,
+  pls_ncomp_max = 7
+)
+# Build a cross-validated model
+pls_sand_msc_cv <- pls_ken_stone(
+  spec_chem = spec_chem_msc[!is.na(spec_chem_msc$sand), ],
+  validation = FALSE,
+  variable = sand,
+  pls_ncomp_max = 7,
+  split_method = "resampling",
+  cv = "LOOCV"
+)
+# Build a cross-validated model using second derivative Savitzky-Golay
+pls_sand_msc2_cv <- pls_ken_stone(
+  spec_chem = spec_chem_msc2[!is.na(spec_chem_msc2$sand), ],
+  validation = FALSE,
+  variable = sand,
+  pls_ncomp_max = 7,
+  split_method = "resampling",
+  cv = "LOOCV"
+)
+# Plot spectra as chross-check!
+plot_spc(spec_chem_msc2, y = "spc_pre", by = "sample_id")
+
 ################################################################################
 ## Write all pls models (R objects) into separate files
 ## using the saveRDS function
@@ -390,11 +538,11 @@ saveRDS(pls_C, "models/pls_C.Rds")
 saveRDS(pls_S, "models/pls_S.Rds")
 saveRDS(pls_P, "models/pls_P.Rds")
 
-## ==============================================================
+## =============================================================================
 ## 4: Soil properties in the group related to
 ## "Plant Nutrition":
 ## Resin extractable P, DTPA Fe, DTPA Zn, DTPA Cu, DTPA Mn
-## ==============================================================
+## =============================================================================
 
 saveRDS(pls_resin_P_log, "models/pls_resin_P_log.Rds")
 saveRDS(pls_Fe_DTPA_log, "models/pls_Fe_DTPA_log.Rds")
@@ -402,59 +550,17 @@ saveRDS(pls_Zn_DTPA, "models/pls_Zn_DTPA.Rds")
 saveRDS(pls_Cu_DTPA, "models/pls_Cu_DTPA.Rds")
 saveRDS(pls_Mn_DTPA, "models/pls_Mn_DTPA.Rds")
 
+## =============================================================================
+## 5: Texture: Sand, clay, and silt percentage
+## =============================================================================
+
+saveRDS(pls_sand, "models/pls_sand.Rds")
+saveRDS(pls_sand_cv, "models/pls_sand_cv.Rds")
+saveRDS(pls_sand_msc, "models/pls_sand_msc.Rds")
+saveRDS(pls_sand_msc_cv, "models/pls_sand_msc_cv.Rds")
+saveRDS(pls_silt, "models/pls_silt.Rds")
+saveRDS(pls_clay, "models/pls_clay.Rds")
+saveRDS(pls_clay_cv, "models/pls_clay_cv.Rds")
+
 # Check if models have been written
 list.files("rds")
-
-################################################################################
-## Test function to select reference samples to be measured by reference
-## analysis methods
-################################################################################
-
-# Get list of reference and prediction samples from Kennard-Stones sampling
-ref_pred_samples <- select_ref_samples(
-  # Preprocessed spectra and metadata in list after preprocessing step
-  list_spectra = soilspec,
-  # Use 2 principal components for the computation of Mahalanobsis distance
-  pc = 2,
-  # Use 15% of samples for reference chemical analysis and model development
-  ratio_ref = 0.15
-)
-
-# Get sample ID from selection list for determining which samples to analyze
-ref_pred_samples$ref_samples$metadata
-
-# Print plot of selected reference and predict samples in PCA space
-ref_pred_samples$p_pca
-
-################################################################################
-## Some extra code for inspecting model objects, and
-## predicting calibrated soil properties using the above calibration models
-# on new spectra. Compare predicted values
-################################################################################
-
-# Check calibration and validation data set
-ls(pls_C$data)
-
-# Calibration set is a data frame within list pls_C$data
-str(pls_C$data$calibration)
-
-# Plot calibration and validation samples using first two PC
-# Element p_pc is a ggplot2 object
-pls_C$p_pc
-
-# Plot predicted vs. observed values for both calibration and validation sets
-# Graph includes commonly used model evaluation indices:
-# R^2, RMSE (Root Mean Square Error; average error of prediction), and
-# RPD (Ratio of Performance to Deviation) for both calibration and validation
-# Element p_model is a ggplot2 object
-pls_C$p_model
-pls_C$p_model$data
-
-# Get summary statistics as data frame object
-pls_C$stats
-
-################################################################################
-
-## Perform robust PCA with spectral data =======================================
-
-pca <- prcomp(soilspec$MIR_pre, center = TRUE, scale = FALSE)
