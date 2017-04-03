@@ -107,6 +107,18 @@ lapply(models, function(x) x$pls_model$finalModel$ncomp)
 # Extract all variable names
 lapply(models, function(x) x$stats$variable)
 
+# Export model evaluation statistics -------------------------------------------
+
+model_evaluation <- do.call(rbind, lapply(models, function(x) x$stats)) %>% 
+  filter(dataType == "Validation") %>%
+  select(variable, n, ncomp, r2, rmse, msd, SB_prop, NU_prop, LC_prop)
+
+# Save model evaluation as csv (all soil models)
+write_csv(model_evaluation, path = "out/tables/model_evaluation_soil_all.csv")
+# Select soil models with R^2 > 0.6 in validation
+model_evaluation %>% filter(r2 >= 0.6) %>% 
+  write_csv(path = "out/tables/model_evaluation_soil_r2_06.csv")
+
 ## Inspect cross-validation RMSE during model tuning ===========================
 
 # Example of exchangeable K model
