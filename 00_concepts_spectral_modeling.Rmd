@@ -1,0 +1,771 @@
+---
+title: "simplerspec hands-on: Reproducible spectral data analysis and infrared spectroscopy modeling"
+author: "Philipp Baumann"
+date: "22 November 2016"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Basics and key concepts
+
+Main motivations for the continous development of the simplerspec R package are:
+
+* facilitate spectra and additional data handling and model development for spectroscopy
+* different helper functions to create a reproducible data and modeling workflow
+* package interface that implements a tight coupling concept of data, metadata and spectral 
+data structures
+
+# Set up a project in RStudio
+
+# Install and load the package
+
+The newest version of the package is available on the GitHub repository 
+<https://github.com/philipp-baumann/simplerspec>. You can install simplerspec using the devtools package. Currently, there seems to be still an issue that `install_github()` does not automatically install all packages that are listed under `"imports"`. In case you obtain error messages that packages can't be found, install the following packages:
+
+```{r, eval = FALSE}
+# List of packages to be installed
+list_packages <- c("data.table", "reshape2",
+  "mvoutlier", "hexView", "Rcpp", "hyperSpec", "prospectr",
+  "caret", "tidyverse")
+# Install packages from CRAN
+install.packages(list_packages, dependencies = TRUE)
+```
+
+The required R packages for spectral modeling can be loaded by
+
+```{r, message = FALSE, warning = FALSE}
+# Load simplerspec package for spectral model development wrapper functions
+library(simplerspec)
+# Load tidyverse package: loads packages frequently used for data manipulation,
+# data tidying, import, and plotting
+library(tidyverse)
+```
+
+# Read spectra from binary files
+
+Spectral files from an individual project are usually stored within a directory.
+
+```{r}
+# List of OPUS files from Alpha
+lf_eth <- list.files("data/spectra/soilspec_eth_bin", full.names = T)
+```
+
+The first five files are:
+```{r}
+lf_eth[1:5]
+```
+
+
+```{r}
+# Read files
+spc_list <- read_opus(
+  fnames = lf_eth,
+  in_format = c("binary"),
+  out_format = "list"
+)
+```
+
+The resulting R object after `read_opus()` contains data from the binary
+OPUS file. Each of the files is saved a separate list element with the following entries:
+
+```{r}
+ls(spc_list[[1]])
+```
+
+The number of spectra can be obtained by:
+
+```{r}
+# Print length of list  = number of read spectral files
+length(spc_list)
+```
+
+
+A list is basic data structure class in R. Lists are very useful for programming, e.g. for applying functions over a list of objects. However, lists are not very convenient
+for interactive data exploration in the R console because they can contain a lot
+of nested elements. To improve data exploration and 
+keep the flexibility of lists the simplerspec analysis workflow implements
+functions that deliver tibble objects.
+
+## Convert spectra into tibble data structures
+
+The function `gather_spc()` collects the spectra and metadata from the Bruker
+spectrometer saved in a list and transforms them into a tidy data set. 
+
+```{r, warnings = FALSE, message = FALSE}
+spc_gathered <- spc_list %>%
+  gather_spc()
+```
+
+The new spectra tibble object can be quickly summarized on 
+screen:
+
+```{r}
+# Print the spectra tibble
+spc_gathered
+```
+
+Spectral data can still be interpreted as data.frame in functions
+of other packages. Tibbles objects have a class that is inherited data.frame
+but have adapted behaviours such as printing.
+
+```{r}
+class(spc_gathered)
+is.list(spc_gathered)
+```
+
+Per default the first 10 rows of a tibble and the columns that fit on the
+screeen are shown. A list of the column names can be printed by
+
+```{r}
+ls(spc_gathered)
+```
+
+In addition, various data tidying functions (subset/filter, group, reshape, 
+summarize, combine) from packages belonging to the tidyverse family such as purrr or 
+dplyr that have interfaces that build upon tibble data structures can be used.
+
+# Plot raw spectra 
+
+Plots of single scans (data from individual files) can be produced by
+the helper function `plot_spc()`. Note that the `scan_id` is derived from the 
+the file names. Spectra are stored within the `spc` list column of the spectra tibble object `spc_gathered`. The plotting function takes care of reshaping data. 
+Plots are based on the famous ggplot2 package.
+
+
+```{r}
+# Select scan_id and spc colums using the dplyr package
+spc_gathered %>% dplyr::select(scan_id, spc)
+```
+
+
+```{r, fig.width = 4.5, fig.height=2.5}
+# The plotting function will soon be implemented in 
+# the simplerspec package; new functionalities in the 
+# plotting functions are planned
+source("R/plot-spc.R")
+plot_spc(spc_gathered, y = "spc", by = "scan_id")
+```
+
+# Access metadata
+
+The OPUS binary file reader can extract spectra metadata including spectrometer settings and environment conditions such as humidity or temperature. The
+spectra metadata can be accessed the column `metadata` of the spectra tibble.
+
+```{r}
+# Print list of metadata data frames for the first row
+# Returns a list
+spc_gathered$metadata[1]
+```
+
+The `metadata` column of the spectra tibble contains a list of data.frames
+
+```{r}
+# Access the first element of the list
+# = first row of tibble
+# The [[]] operator selects only the content
+# of this list element, whereas [] selects also 
+# The name and the content of the list element, in this case 
+# the scan BF_lo_01_soil_cal.0
+str(spc_gathered$metadata[[1]])
+```
+
+
+The metadata can be used to do quality control and to monitor the scanning
+environment. Using the scanning date and time from the binary files in the
+column `date_time` the temperature of the scanner can be evaluated over the
+time for different samples.
+ 
+```{r, fig.width = 4.5, fig.height = 2.5}
+# Combine list of metadata data frames (in tibble list-column) into 
+# one data frame, combine sequence of data.frames in
+# list (spc_gathered$metadata) by rows
+metadata <- do.call(rbind, spc_gathered$metadata)
+# Filter and plot data
+# Temperature of the scanner
+ggplot2::qplot(x = date_time, y = temp_scanner_sample, data = metadata)
+# Absolute humidity of the interferometer during the background scans (KBr)
+ggplot2::qplot(x = date_time, y = hum_abs_bg, data = metadata)
+# Relative humidity of the interferometer 
+ggplot2::qplot(x = date_time, y = hum_rel_sample, data = metadata)
+```
+
+# Resample spectra 
+
+The raw scan wavenumbers are saved within the `wavenumbers` column. 
+These are the fist and last wavenumbers of an example spectrum:
+
+```{r}
+wavenumbers_raw_example <- spc_gathered %>% 
+  dplyr::filter(scan_id == "BF_lo_01_soil_cal.0") %>%
+  dplyr::select(wavenumbers) %>% .[["wavenumbers"]] %>%
+  # Select first element = row
+  .[[1]]
+# Show first and last 6 wavenumbers
+wavenumbers_raw_example %>% head()
+# Show last 6 wavenumbers
+wavenumbers_raw_example %>% tail()
+```
+
+To adjust the number variables and the band positions (wavenumbers interval)
+resampling is performed. Having identical wavenumbers for all the spectra is 
+a prerequisite for averaging, preprocessing, and model developement. The function `resample_spc()` contains a wrapper
+for the `resample()` function from the prospectr package that is adapted to
+the tibble framework of the simplerspec package.
+
+Resampling takes the raw sample spectrum wavenumbers stored within the `wavenumbers`
+column and resamples all sample spectra individually. Therefore, also spectra
+that differ in their wavenumber intervals can be standardized to the same 
+interval.
+
+```{r}
+# Resample spectra based on raw spectra
+spc_resampled <- spc_gathered %>%
+  # Resample for 500 cm^-1 to 3996 cm^-1 with 2 cm^-1 intervals
+  resample_spc(wn_lower = 500, wn_upper = 3996, wn_interval = 2)
+```
+
+The function `resample_spc()` adds a two new list-columns to the spectra tibble:
+`spc_rs` (resampled spectra) and `wavenumbers_rs` (resampled wavenumbers).
+
+The resampled spectra contain the resampled wavenumbers as specified above
+in the arguments of the `resample_spc()` function.
+
+```{r}
+wavenumbers_rs_example <- spc_resampled %>% 
+  dplyr::filter(scan_id == "BF_lo_01_soil_cal.0") %>%
+  dplyr::select(wavenumbers_rs) %>% .[["wavenumbers_rs"]] %>%
+  # Select first element = row
+  .[[1]]
+# Show first and last 10 wavenumbers
+wavenumbers_rs_example %>% head()
+# Show last 10 wavenumbers
+wavenumbers_rs_example %>% tail()
+```
+
+Resampled spectra 
+
+```{r}
+spc_rs_example <- spc_resampled %>% 
+  dplyr::filter(scan_id == "BF_lo_01_soil_cal.0") %>%
+  dplyr::select(spc_rs) %>% .[["spc_rs"]] %>% 
+  # Select first element = row
+  .[[1]]
+# Show the first 6 wavenumbers of the spectra matrix (one spectrum)
+spc_rs_example[, 1:6]
+```
+
+
+# Average spectra
+
+If a single sample is repeatedly scanned the mean spectrum can be 
+calculated by the function `average_spc()`. Averaging should only be done after 
+resampling because wavenumber variables need to be identical for all the spectra. 
+Averaging is per default performed by `sample_id`. The Bruker software adds a 
+increasing number `.<scan_number>` starting from 0 for the first scan.
+
+Here is an example spectra tibble after resampling (`resample_spc()`):
+
+```{r}
+spc_resampled
+```
+
+There are three spectra replicates per sample_id. Averaging is performed by
+
+```{r}
+spc_mean <- spc_resampled %>% 
+  average_spc()
+```
+
+The resulting spectra tibble is:
+
+```{r}
+spc_mean
+```
+
+
+The function `average_spc()` adds a new list-column `spc_mean` that contains
+the mean spectra. Mean spectra can be plotted by
+
+```{r, fig.width = 4.5, fig.height = 2.5}
+plot_spc(spc_mean, y = "spc_mean", by = "sample_id")
+```
+
+You can also select a subset of spectra that you are plotting. Here are 
+the resampled spectra for three replicates for the `sample_id` "BF_lo_01_soil_cal"
+
+```{r, fig.width = 4.5, fig.height = 2.5}
+spc_mean %>% 
+  # Select only one spectrum
+  dplyr::filter(sample_id == "BF_lo_01_soil_cal") %>% 
+  plot_spc(y = "spc_rs", by = "scan_id") +
+  # Change alpha to 1 (no transparency) and line size to 0.2
+  geom_line(aes(colour = id), alpha = 1, size = 0.2)
+```
+
+The average spectrum for this sample is:
+
+```{r, fig.width = 4.5, fig.height = 2.5}
+spc_mean %>% 
+  # Select only one spectrum
+  dplyr::filter(sample_id == "BF_lo_01_soil_cal") %>% 
+  plot_spc(y = "spc_mean", by = "sample_id") +
+  # Change alpha to 1 (no transparency) and colour to red
+  geom_line(aes(colour = "sample_id"), alpha = 1, colour = "red", size = 0.5)
+```
+
+The averaged spectra are data.table objects generated from the data.table package.
+data.table supports fast aggregation of large data with extremely fast data manipulation. (see [https://www.datacamp.com/community/tutorials/data-table-cheat-sheet#gs.b=k0YIc](Cheatsheet data.table))
+
+```{r}
+# The column spc_mean is a list of data.table objects
+spc_mean %>% select(scan_id, sample_id, spc_mean)
+# Spectra are data.table objects
+class(spc_mean$spc_mean[[1]])
+```
+
+Here are the tibble rows of the sample with `sample_id` = "BF_lo_01_soil_cal":
+
+```{r}
+# Show tibble rows corresponding to sample_id "BF_lo_01_soil_cal"
+spc_mean %>% dplyr::filter(sample_id == "BF_lo_01_soil_cal")
+```
+
+
+The spectra tibble rows that are scan replicates (scan_id) of the same sample_id.
+Mean spectra are therefore identical for scan_id that belong to the same 
+sample_id:
+
+```{r}
+# Print spectrum replicate 0
+spc_mean %>% dplyr::filter(scan_id == "BF_lo_01_soil_cal.0") %>%
+  dplyr::select(spc_mean) %>% .[["spc_mean"]] %>% 
+  # Select first element = row
+  .[[1]] %>% 
+  # Select absorbance at first six wavenumbers
+  .[, 1:6]
+# Print spectrum of replicate 1
+spc_mean %>% dplyr::filter(scan_id == "BF_lo_01_soil_cal.1") %>%
+  dplyr::select(spc_mean) %>% .[["spc_mean"]] %>% 
+  # Select first element = row
+  .[[1]] %>% 
+  # Select absorbance at first six wavenumbers (columns)
+  .[, 1:6]
+```
+
+# Preprocess spectra
+
+Preprocessing is an important step prior to model development and aims to 
+improve data quality. The goal is to enhance spectral features that are
+characteristic for properties to model by removing spectral noise and
+masking interaction effects between the light source, sample, and the scanning
+environment (optical setup and physical conditions). Despite the possible benefits
+of preprocessing one should also be carefully evaluate the effects of preprocessing
+because inappropriate settings for different preprocessing methods bear also
+the risk of enhancing existing or introducing new spectral noise. Under these circumstances preprocessing can decrease robustness and accuracy of prediction models.
+
+The simplespec package provides predefined preprocessing options as arguments
+of the `preprocess_spc()` function. The preprocessing function is a wrapper
+around the different functions available in the prospectr package.
+
+Currently, various options for the following preprocessing methods are available:
+
+* Savitzky-Golay: different derivatives with different window sizes, order of 
+fitted polynomial
+* Standard normal variate
+* Gap derivative with different filter lenghts and segment sizes
+* Continuum removal
+
+You can consider the source of the `preprocess_spc()` function. 
+
+
+```{r, eval = FALSE, purl = FALSE}
+# https://github.com/philipp-baumann/simplerspec/blob/master/R/preprocess-spc.R
+#' #@title Preprocess spectra from spectral data object (tibble)
+#' @description Preprocesses spectra in tibble column by sample_id after
+#' averaging spectra by \code{simplerspec::average_spc()}.
+#' @export
+preprocess_spc <- function(spc_tbl, select, column_in = "spc_mean",
+  custom_function = NULL) {
+
+  # Convert list of spectral data.tables to one data.table
+  spc_raw <- data.table::rbindlist(spc_tbl[column_in][[column_in]])
+
+  ## Perform preprocessing =====================================================
+
+  # Use custom function when supplying option ----------------------------------
+  if(!is.null(custom_function) & select == "custom") {
+    # Create full character string for parsing
+    custom_fct <- paste0("custom <- ", custom_function)
+    # parse converts the character string into an expression
+    # eval evaluates the expression; as a result, custom object is computed
+    # and saved within the current workspace
+    eval(parse(text = custom_fct))
+    ## x <- spc_raw
+    ## custom <- eval(substitute(custom_function), envir = parent.frame())
+    # -> Error in is.data.frame(X) : object 'x' not found
+  }
+  # -> returns error:
+  # custom_function = prospectr::savitzkyGolay(X = x, m = 0, p = 3, w = 9)
+  # Error in is.data.frame(X) : object 'x' not found
+  # -> Maybe solution: http://stackoverflow.com/questions/30563745/non-standard-evaluation-from-another-function-in-r
+
+  # Savitzky-Golay preprocessing
+  # use different derivatives and window sizes ---------------------------------
+
+  # Zero order Savitzky-Golay (no derivative) -> only smoothing
+  if(select == "sg_0_w9") {
+    sg_0_w9 <- prospectr::savitzkyGolay(X = spc_raw,
+      m = 0, p = 3, w = 9)}
+  # First derivative Savitzky-Golay
+  if(select == "sg_1_w5") {
+    sg_1_w5 <- prospectr::savitzkyGolay(X = spc_raw,
+      m = 1, p = 3, w = 5)}
+  if(select == "sg_1_w9") {
+    sg_1_w9 <- prospectr::savitzkyGolay(X = spc_raw,
+      m = 1, p = 3, w = 9)}
+  if(select == "sg_1_w11") {
+    sg_1_w11 <- prospectr::savitzkyGolay(X = spc_raw,
+      m = 1, p = 3, w = 11)}
+  if(select == "sg_1_w13") {
+    sg_1_w13 <- prospectr::savitzkyGolay(X = spc_raw,
+      m = 1, p = 3, w = 13)}
+  if(select == "sg_1_w15") {
+    sg_1_w15 <- prospectr::savitzkyGolay(X = spc_raw,
+      m = 1, p = 3, w = 15)}
+  if(select == "sg_1_w17") {
+    sg_1_w17 <- prospectr::savitzkyGolay(X = spc_raw,
+      m = 1, p = 3, w = 17)}
+  if(select == "sg_1_w19") {
+    sg_1_w19 <- prospectr::savitzkyGolay(X = spc_raw,
+      m = 1, p = 3, w = 19)}
+  # Implement window size of 21, corresponds to ICRAF standard;
+  # see e.g. Terhoeven-Urselmans et al. (2010)
+  if(select == "sg_1_w21") {
+    sg_1_w21 <- prospectr::savitzkyGolay(X = spc_raw,
+      m = 1, p = 3, w = 21)}
+  if(select == "sg_1_w23") {
+    sg_1_w23 <- prospectr::savitzkyGolay(X = spc_raw,
+      m = 1, p = 3, w = 23)}
+  if(select == "sg_1_w25") {
+    sg_1_w25 <- prospectr::savitzkyGolay(X = spc_raw,
+      m = 1, p = 3, w = 25)}
+  if(select == "sg_1_w27") {
+    sg_1_w27 <- prospectr::savitzkyGolay(X = spc_raw,
+      m = 1, p = 3, w = 27)}
+  if(select == "sg_1_w35") {
+    sg_1_w35 <- prospectr::savitzkyGolay(X = spc_raw,
+      m = 1, p = 3, w = 35)}
+  if(select == "sg_1_w41") {
+    sg_1_w41 <- prospectr::savitzkyGolay(X = spc_raw,
+      m = 1, p = 3, w = 41)}
+  if(select == "sg_1_w51") {
+    sg_1_w51 <- prospectr::savitzkyGolay(X = spc_raw,
+      m = 1, p = 3, w = 51)}
+  # Second derivative Savitzky-Golay
+  if(select == "sg_2_w11") {
+    sg_2_w11 <- prospectr::savitzkyGolay(X = spc_raw,
+      m = 2, p = 3, w = 11)}
+  if(select == "sg_2_w21") {
+    sg_2_w21 <- prospectr::savitzkyGolay(X = spc_raw,
+      m = 2, p = 3, w = 21)}
+  
+  ## ... more code for additional preprocessing method
+  ## (additional select arguments), see 
+  ## https://github.com/philipp-baumann/simplerspec/blob/master/R/preprocess-spc.R
+
+  # Select final preprocessing based on selection argument and
+  # save matrix in data table
+  pre <- select
+  spc_pre <- data.table::as.data.table(get(pre))
+
+  # Convert preprocessed spectra in data.table to list of data.table spectra
+  spc_pre_list <- split(spc_pre, seq(nrow(spc_pre)))
+
+  # Add list of preprocessed spectra to tibble
+  spc_tbl <- tibble::add_column(spc_tbl, spc_pre = spc_pre_list)
+}
+```
+
+```{r}
+spc_sg_1_w21 <- spc_mean %>%
+  # Use Savitzky-Golay smoothing with a first derivative and a window size of 21
+  preprocess_spc(select = "sg_1_w21")
+```
+
+This is the tibble that results after preprocessing:
+
+```{r}
+spc_sg_1_w21
+```
+
+In the tibble `spc_sg_1_w21` there is a new column called `spc_pre` that
+contains the preprocessed spectra in a list. The data structure is analog
+to the `spc_mean` column. 
+
+```{r}
+spc_sg_1_w21 %>% select(spc_pre)
+```
+
+The preprocessed spectra are
+
+```{r, fig.width = 4.5, fig.height = 2.5}
+spc_sg_1_w21 %>% 
+  plot_spc(y = "spc_pre", by = "sample_id")
+```
+
+A relatively small window sizes of Savitzky-Golay first derivative can amplify small 
+peak changes:
+
+```{r, fig.width = 4.5, fig.height = 2.5}
+spc_mean %>%
+  # Use Savitzky-Golay smoothing with a first derivative and a window size of 5
+  preprocess_spc(select = "sg_1_w5") %>%
+  plot_spc(y = "spc_pre", by = "sample_id")
+```
+
+## Continuum removal
+
+A further example of spectral preprocessing is continuum removal:
+
+```{r, fig.width = 4.5, fig.height = 2.5}
+spc_mean %>%
+  # Continuum removal
+  preprocess_spc(select = "cr") %>% 
+  plot_spc(y = "spc_pre", by = "sample_id")
+```
+
+## Standard Normal Variate
+
+The Standard Normal Variate is a simple method to normalize spectra:
+
+```{r, fig.width = 4.5, fig.height = 2.5}
+spc_mean %>%
+  # Standard normal variate (scaling and centering)
+  # after Savitzky-Golay smoothing: 
+  preprocess_spc(select = "sg_0_snv") %>%
+  plot_spc(y = "spc_pre", by = "sample_id")
+```
+
+
+## Gap derivatives
+
+Example of the Norris Gap Derivative (special case of segment size of 1) with
+a gap of 21 points (42 cm^-1):
+
+```{r, fig.width = 4.5, fig.height = 2.5}
+spc_mean %>%
+  # Gap derivative of first order with a filter length of 21 and
+  # a segment size of 1
+  preprocess_spc(select = "gsd_m1_w21_s1") %>% 
+  plot_spc(y = "spc_pre", by = "sample_id")
+```
+
+# Spectral data processing and chemical reference data joining in one step
+
+In order to have a consistent data organization spectra tibbles after 
+preprocessing and chemical data are joined.
+
+The workflow of reading, gathering, resampling, averaging and preprocessing
+spectra can be done in one sequence:
+
+```{r, warning = FALSE}
+soilspec <- spc_list %>%
+  gather_spc() %>% 
+  resample_spc(wn_lower = 500, wn_upper = 3996, wn_interval = 2) %>%
+  average_spc() %>%
+  preprocess_spc(select = "sg_1_w21")
+```
+
+The resulting tibble is:
+
+```{r}
+soilspec
+```
+
+Chemical reference data can be read by:
+
+```{r}
+# Read chemical reference analysis data
+soilchem <- readr::read_csv(file = "data/soilchem/soilchem_yamsys.csv")
+# Print chemical data
+soilchem
+```
+
+Spectra and chemical data tibbles can be combined by:
+
+```{r}
+# Join spectra tibble and chemical reference analysis tibble
+spec_chem <- join_spc_chem(
+  spc_tbl = soilspec, chem_tbl = soilchem, by = "sample_id")
+```
+
+The resulting tibble is:
+
+```{r}
+spec_chem
+```
+
+# Model development
+
+Due a complex spectral response that reflects the complex soil composition and mixture of organic and mineral functional groups, a single diffuse reflectance spectrum can allow the simultaneous prediction of various soil properties. These properties can be directly and indirectly related to the soil composition. However, due to the complex light scattering effects and spectral overlays, multivariate calibration methods need to be used.
+
+The simplerspec package has wrapper functions that facilitate model development
+and evaluation. A wide range of statistical models can be applied to link 
+preprocessed spectral responses to properties to predict. A famous method 
+is PLS (Partial Least Squares) Regression. A challenge is the fact that usually
+a low number of samples with a high number of predictor variables (wavenumbers)
+is used for calibration. Many multivariate and machine learning methods bear the
+risk of overfitting. Combinations of tuning parameters and preprocessing methods
+should therefore be carfully evaluated. It is recommended split up the spectra 
+and corresponding chemical reference data set into calibration (train) and 
+validation (test). The calibration set is used to fit the model and the 
+remaining sample spectra can be predicted by the fitted calibration model. 
+A comparison of observed vs. predicted values derived from the validation set
+gives a first impression of model accuracy and robustness. 
+
+Below is an example of a PLS regression model for total carbon (C). The different
+steps for model development are explained step by step. Concepts for outputs and data structures derived from the model fitting functions will be exemplified.
+
+The `pls_ken_stone()` function performs calibration sampling using the 
+Kennard-Stones algorithm (splitting up data set into calibration and validation),
+calibrates a PLS regression model (the function passes arguments to the caret
+package interface). The package main homepage states: "The caret package (short for 
+Classification And REgression Training) is a set of functions that attempt to 
+streamline the process for creating predictive models". It is a very flexible
+and unified interface that currently supports 233 different model packages in R . 
+Different methods for data splitting, pre-processing, feature 
+selection, model tuning using resampling and variable importance estimation are 
+available.
+
+```{r, message = FALSE, warning=FALSE, results = "hide", fig.width = 4.5, fig.height = 2.5}
+# PLS regression model for total carbon (C)
+pls_C <- pls_ken_stone(
+  spec_chem = spec_chem[!is.na(spec_chem$C), ],
+  # Use 1/3 of the data for calibration
+  ratio_val = 1/3,
+  variable = C,
+  # Split up into calibration and validation
+  validation = TRUE,
+  # Use points selected from Kennard Stones
+  invert = FALSE,
+  # Number of principal components that are retained for
+  # the computation of the Kennard-Stone calibration sampling algorithm
+  pc = 6,
+  # Maximal number of tested PLSR components 
+  # (argument is passed to the caret model tuning parameters)
+  pls_ncomp_max = 6
+)
+```
+
+Let's explore the data structure of the object `pls_C` resulting from the 
+`pls_ken_stone()` model calibration and evaluation function. The class of the
+`pls_C` object is a list:
+
+```{r}
+# Check if pls_C is a list
+is.list(pls_C)
+```
+
+The object `pls_C` contains the following objects:
+
+```{r}
+# List all elements
+ls(pls_C)
+```
+
+Lists can contain objects of different classes. The first element is `data`. 
+It contains
+
+```{r, fig.width = 4.5, fig.height = 2.5}
+pls_C$data
+```
+
+There are three elements within `data`: 
+
+* `calibration`:  Spectra and chemical refererence
+tibble used for model calibration
+* `validation`: Spectra and chemical refererence
+tibble used for model validation
+* `p_pc`: Projection of selected preprocessed spectra (column `spc_pre` in `calibration` and
+`validation`) from Kennard-Stones calibration sampling in the PCA space 
+grouped by `calibration` and `validation`.
+
+The summary plot for model calibration and validation allows to visually
+assess model performance and robustness. The ggplot2 graph is contained in 
+the element `p_model` (stands for "plot model"):
+
+```{r, fig.width = 4.5, fig.height = 2.5, cache = TRUE}
+# Explore the data structure of the p_model element
+class(pls_C$p_model)
+# Print the ggplot2 graph of model calibration and validation
+pls_C$p_model
+```
+
+The element `p_pc` contains Kennard-Stones calibration sampling and shows 
+the distribution of calibration and validation spectra in the PCA 
+(principal component analysis) space for the first two principal components. 
+The plot was already shown when printing the `data` element.
+
+Within the element `pls_model` the list output of class `train` from the 
+`caret::train()` function is returned. 
+
+```{r}
+# Check the class of the list element `pls_model`
+class(pls_C$pls_model)
+```
+
+The `train` object within the `pls_model` element contains a set of model
+results based on a grid of tuning paramters and calculated performance measures
+based on a resampling method. The data splitting (calibration sampling) and model building and evaluation helper function 
+`simplerspec::pls_ken_stone()` among other tasks internally calls the 
+`caret::train()` function with default settings for tuning parameters. The `pls_model` element contains information on the model building process with
+regard to data splitting and pre-processing; tuning and building models; characterizing performance and variable importance. The list is a unified and 
+consistent list structure that allows to reproduce model building and consult
+parameters and final models derived during model development.
+
+The `pls_ken_stone()` functions currently supports k-fold cross-validation and 
+leave-one-out cross-validation method in the `cv` (cross-validation) argument. 
+Cross-validation is used to optimize model parameters with regard to optimize 
+predictions on the held-out samples using resampling. 
+
+The train object contains for example:
+
+* `method`: the chosen model
+
+```{r}
+# Print the method of the train object
+pls_C$pls_model$method
+```
+
+* `finalModel`: a fit object using the best parameters
+
+* `metric`: a string that specifies what summary metric will be used to select the optimal model
+
+The final PLS regression model has a final number of PLS regression components.
+The final number of parameters for the given example model is:
+
+```{r}
+# Print the final number of PLSR components
+# (also called latent variables)
+pls_C$pls_model$finalModel$ncomp
+
+pls_C <- readRDS(file = "models/pls_C.Rds")
+ls(pls_C$pls_model$preProcess)
+```
+
+It has to be noted that each spectral variable (wavenumber) is scaled its standard
+deviation and mean centered prior to calibration when evaluating the
+`pls_ken_stone()` by passing the argument `preProcess = c("center", "scale")` to the 
+`caret::train()` function. This is an additional preprocessing step that takes place 
+after the preprocessing step using `simplerspec::preprocess_spc()`. As a result,
+all spectra wavenumber variables are standardized to mean 0 and a standard deviation
+of 1.
+
+# Extend the interpretation of spectral data
+
+
+
