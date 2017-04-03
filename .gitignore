@@ -3,9 +3,8 @@
 .Rhistory
 .RData
 .Ruserdata
-*.Rproj
-data/
-models/
-out/
-predictions/
-*.pdf
+.Rproj
+data
+models
+out
+predictions
