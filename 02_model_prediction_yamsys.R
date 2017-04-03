@@ -74,29 +74,33 @@ pls_Mn_DTPA <- readRDS("models/pls_Mn_DTPA.Rds")
 ################################################################################
 
 # Load caret package for model predictions
-library("caret")
-# Load pipe operator (%>%) from dplyr package
-library("dplyr")
+library(caret)
+# Load tidyverse package: loads packages frequently used for data manipulation,
+# data tidying, import, and plotting
+require(tidyverse)
 # Load simplerspec package
-library("simplerspec")
-# Various functions for reshaping data etc.
-library("tidyr")
+library(simplerspec)
 
-soilspec_test <- read_spectra(
-  path = "predictions/spectra/") %>%
-  average_spectra() %>%
-  remove_outliers(remove = FALSE) %>%
-  do_pretreatment(select = "MIR0")
+# Read spectra in list ========================================================
 
-# Put models into list for simulataneous prediction of soil
-# properties using extractPrediction() function from the
-# caret package; you can add more models in the list
+# List of OPUS files from Alpha at ESAL in Côte d'Ivoire
+lf_esal <- list.files("data/spectra/soilspec_esal_bin/", full.names = T)
 
-# Helper function that extracts all pls_model elements (outputs from caret)
-# for a list of models
-combine_models <- function(model_list) {
-  list_stat <- lapply(model_list, function(x) x$pls_model)
-}
+# Read files: ESAL
+spc_list_esal <- read_opus(
+  fnames = lf_esal,
+  in_format = c("binary"),
+  out_format = "list"
+)
+
+## Spectral data processing pipe ===============================================
+
+# ESAL Alpha files
+soilspec_tbl_esal <- spc_list_esal %>%
+  gather_spc() %>% 
+  resample_spc(wn_lower = 500, wn_upper = 3996, wn_interval = 2) %>%
+  average_spc() %>%
+  preprocess_spc(select = "sg_1_w21")
 
 # Create list of model output for all calibrated soil properties
 models_all <- list(
@@ -126,10 +130,6 @@ models_all <- list(
   pls_Mn_DTPA = pls_Mn_DTPA
 )
 
-# Extract caret model lists for prediction using the above helper function,
-# one element is one model
-models_prediction <- combine_models(model_list = models_all)
-
 # Prediction of total C: use samples of validation
 # for an example. In future, new soils will be predicted.
 # Note that the spectra need to be averaged and preprocessed
@@ -145,7 +145,7 @@ models_prediction <- combine_models(model_list = models_all)
 # to create predicted values.
 
 # Test final prediction function
-predictions <- predict_from_spectra(
+predictions <- predict_from_spc(
+  # List of models (output from pls_ken_stone())
   model_list = models_all,
-  spectra_list = soilspec_test
-)
+  spc_tbl = soilspec_tbl_esal)
