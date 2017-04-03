@@ -4,6 +4,8 @@
 .RData
 .Ruserdata
 .Rproj
+.pdf
+00_concepts_spectral_modeling_cache
 data
 models
 out
