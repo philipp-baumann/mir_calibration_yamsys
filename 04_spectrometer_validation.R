@@ -70,15 +70,19 @@ spc_chem_esal <- join_spc_chem(
 
 ## Example model for carbon with preprocessed ETH Alpha spectra ================
 
-pls_C <- pls_ken_stone(
-  spec_chem = spc_chem_eth[!is.na(spc_chem_eth$C), ],
-  ratio_val = 1/3,
-  variable = C,
-  validation = TRUE,
-  invert = FALSE,
-  pc = 6,
-  pls_ncomp_max = 6
-)
+# pls_C <- pls_ken_stone(
+#   spec_chem = spc_chem_eth[!is.na(spc_chem_eth$C), ],
+#   ratio_val = 1/3,
+#   variable = C,
+#   validation = TRUE,
+#   invert = FALSE,
+#   pc = 6,
+#   pls_ncomp_max = 6
+# )
+
+# Read models from RDS files
+pls_C <- readRDS(file = "models/pls_C.Rds")
+pls_CEC <- readRDS(file = "models/pls_CEC.Rds")
 
 # Check missing values in spectra
 # spectra_eth <- data.table::rbindlist(soilspec_tbl_eth$spc_pre)
@@ -97,7 +101,8 @@ plot_spc(soilspec_tbl_eth, y = "spc_pre", by = "sample_id")
 # Prediction of ESAL spectra based on ETH model
 # Collect different model in a list (add more models...)
 models_eth <- list(
-  pls_C = pls_C
+  pls_C = pls_C,
+  pls_CEC = pls_CEC
 )
 
 # Predict values ---------------------------------------------------------------
@@ -131,6 +136,8 @@ qplot(x = C, y = pls_C, data = pred_chem,
   coord_fixed() + 
   labs(title = "Spectrometer validation by predicting \n ICRAF ALPHA spectra based on ETH ALPHA model")
 dev.off()
+# -> Warning message to fix: 
+# "Removed 1 rows containing missing values (geom_point)"
 
 ## Calculate model statistics 
 summary_df(df = as.data.frame(pred_chem), x = "pls_C", y = "C")
