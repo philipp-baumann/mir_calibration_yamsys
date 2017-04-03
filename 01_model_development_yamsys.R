@@ -563,4 +563,4 @@ saveRDS(pls_clay, "models/pls_clay.Rds")
 saveRDS(pls_clay_cv, "models/pls_clay_cv.Rds")
 
 # Check if models have been written
-list.files("rds")
+list.files("models")
