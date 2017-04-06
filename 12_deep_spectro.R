@@ -29,6 +29,16 @@ soilspec_tbl_eth <- spc_list_eth %>%
   preprocess_spc(select = "sg_1_w21")
 
 # Convert spectra to matrix using data.table::rbindlist
-spc_pre <- matrix(data.table:::rbindlist(soilspec_tbl_eth$spc_pre))
+spc_pre <- data.table:::rbindlist(soilspec_tbl_eth$spc_pre)
+dim(spc_pre) # data.table contains 284 rows and 1729 columns
+class(spc_pre)
+colnames(spc_pre)[1]
+rownames(spc_pre) # Rownames are just numbers; this is probably an
+# inherent feature of data.table class
 
+## Load chemical data ==========================================================
+
+soilchem_tbl <- readr::read_csv(file = "data/soilchem/soilchem_yamsys.csv")
+
+## Join spectra tibble and chemical tibble =====================================
 
