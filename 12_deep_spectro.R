@@ -26,7 +26,10 @@ soilspec_tbl_eth <- spc_list_eth %>%
   gather_spc() %>% 
   resample_spc(wn_lower = 500, wn_upper = 3996, wn_interval = 2) %>%
   average_spc() %>%
-  preprocess_spc(select = "sg_1_w21")
+  preprocess_spc(select = "sg_1_w21") %>%
+  # Group and slice
+  group_by(sample_id) %>%
+  slice(1L)
 
 # Convert spectra to matrix using data.table::rbindlist
 spc_pre <- data.table:::rbindlist(soilspec_tbl_eth$spc_pre)
@@ -41,4 +44,20 @@ rownames(spc_pre) # Rownames are just numbers; this is probably an
 soilchem_tbl <- readr::read_csv(file = "data/soilchem/soilchem_yamsys.csv")
 
 ## Join spectra tibble and chemical tibble =====================================
+
+chemspec_tbl <- join_spc_chem(
+  spc_tbl = soilspec_tbl_eth, chem_tbl = soilchem_tbl)
+# Boxplot of sand proportion
+boxplot(chemspec_tbl$sand)
+
+
+## Deep learning ###############################################################
+
+# Start 1-node H2O server
+h2o.init(nthreads=-1, max_mem_size="2G")
+# h2o.removeAll() ## clean slate - just in case the cluster was already running
+
+## Build the first model =======================================================
+
+
 
