@@ -46,11 +46,14 @@ spec_chem <- join_spc_chem(
 
 ## Calibrate random forest model ===============================================
 
-pls_C_rf <- rf_ken_stone(
+# Fit random forest model
+rf_C_cv <- fit_rf(
   spec_chem = spec_chem[!is.na(spec_chem$C), ],
-  ratio_val = 1/3,
-  variable = C,
-  validation = TRUE,
-  pc = 6,
-  ntree_max = 20
-)
+  response = C,
+  evaluation_method = "resampling",
+  # resampling_method = "kfold_cv",
+  ntree_max = 50)
+
+# Compare PLSR model
+# Read total C PLSR model
+pls_C <- readRDS("models/test_ken_sto/pls_C.Rds")
