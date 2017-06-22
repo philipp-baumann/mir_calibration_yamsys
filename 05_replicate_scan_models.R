@@ -44,7 +44,7 @@ spec_chem_1rep <- join_spc_chem(
 spec_chem <- join_spc_chem(
   spc_tbl = soilspec_rep , chem_tbl = soilchem_tbl, by = "sample_id")
 
-## PLS regression modeling ====================================================
+## PLS regression modeling =====================================================
 
 # Total soil carbon (C) model using only one randomly selected replicate scan
 # per sample_id
