@@ -5,6 +5,7 @@
 *.Ruserdata
 *.Rproj
 *.pdf
+*_cache
 00_concepts_spectral_modeling_cache
 data
 models
