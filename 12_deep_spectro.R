@@ -59,5 +59,19 @@ h2o.init(nthreads=-1, max_mem_size="2G")
 
 ## Build the first model =======================================================
 
+spiral <- h2o.importFile(path = normalizePath("../data/spiral.csv"))
+grid   <- h2o.importFile(path = normalizePath("../data/grid.csv"))
 
+# Create plot helper function --------------------------------------------------
+
+# Define helper to plot contours
+plotC <- function(name, model, data=spiral, g=grid) {
+  data <- as.data.frame(data) #get data from into R
+  pred <- as.data.frame(h2o.predict(model, g))
+  n=0.5*(sqrt(nrow(g))-1); d <- 1.5; h <- d*(-n:n)/n
+  plot(data[,-3],pch=19,col=data[,3],cex=0.5,
+       xlim=c(-d,d),ylim=c(-d,d),main=name)
+  contour(h,h,z=array(ifelse(pred[,1]=="Red",0,1),
+          dim=c(2*n+1,2*n+1)),col="blue",lwd=2,add=T)
+}
 
