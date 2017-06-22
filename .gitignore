@@ -1,10 +1,10 @@
-.Rproj.user
-.DS_Store
-.Rhistory
-.RData
-.Ruserdata
-.Rproj
-.pdf
+*.Rproj.user
+*.DS_Store
+*.Rhistory
+*.RData
+*.Ruserdata
+*.Rproj
+*.pdf
 00_concepts_spectral_modeling_cache
 data
 models
