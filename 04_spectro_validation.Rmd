@@ -1,0 +1,25 @@
+---
+title: 'Spectrometer and model comparison: SAE ALPHA vs. ESAL ALPHA'
+author: "Philipp Baumann"
+date: "14 June 2017"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, cache = TRUE, include = FALSE}
+source(file = "04_spectrometer_validation.R")
+```
+
+```{r, warning=FALSE}
+p_pred_esal
+```
+
+```{r}
+# Model evaluation statistics
+simplerspec::summary_df(df = as.data.frame(pred_chem), x = "C", y = "pls_C")
+```
+
+
