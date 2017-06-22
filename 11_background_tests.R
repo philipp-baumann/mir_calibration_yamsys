@@ -1,7 +1,7 @@
 ################################################################################
 ## Script author: Philipp Baumann (philipp.baumann@usys.ethz.ch)
 ## License: GPL-3.0
-## Date: March 21, 2017s
+## Date: June 22, 2017
 ## Project: YAMSYS
 ## Description: 
 ################################################################################
