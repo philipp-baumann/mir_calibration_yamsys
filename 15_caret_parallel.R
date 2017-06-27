@@ -1,6 +1,7 @@
 ################################################################################
+## Author: Philipp Baumann
 ## License: GPL-3.0
-## Date: September 6, 2016
+## Date: June 27 2017
 ## Project: YAMSYS
 ## Description: Develop PLS regression calibration models for the YAMSYS
 ## pilot sites
