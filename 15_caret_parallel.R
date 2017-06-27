@@ -80,7 +80,8 @@ system.time(
     pls_ncomp_max = 1
   )
 )
-# -> computation time was for about 124s
+# -> computation time was for about 38s; speedup more than 3 times compared to 
+# serial processing!
 
 # Detect logical not physical cores --------------------------------------------
 detectCores()
