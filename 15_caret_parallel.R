@@ -1,5 +1,10 @@
 ################################################################################
-## Test parallel processing with caret
+## License: GPL-3.0
+## Date: September 6, 2016
+## Project: YAMSYS
+## Description: Develop PLS regression calibration models for the YAMSYS
+## pilot sites
+## Task: Test speed-up of parallel processing with caret compared to serial
 ################################################################################
 
 # Remove all R objects from memory
