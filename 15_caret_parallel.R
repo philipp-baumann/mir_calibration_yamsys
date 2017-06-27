@@ -104,4 +104,5 @@ system.time(
 )
 # -> not significantly faster: 35s
 
-
+# Shut down the workers --------------------------------------------------------
+stopCluster(cl)
