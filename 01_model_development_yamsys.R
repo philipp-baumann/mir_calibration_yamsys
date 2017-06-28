@@ -62,6 +62,19 @@ spec_chem <- join_spc_chem(
 ## that have missing values in the target soil property variable
 ################################################################################
 
+## Register parallel backend for using multiple cores ==========================
+
+# Allows to tune the models using parallel processing (e.g. use all available
+# cores of a CPU); caret package automatically detects the registered backend
+library(doParallel)
+# Make a cluster with all possible threads (more than physical cores)
+cl <- makeCluster(detectCores())
+# Register backend
+registerDoParallel(cl)
+# Return number of parallel workers
+getDoParWorkers() # 8 threads on MacBook Pro (Retina, 15-inch, Mid 2015);
+# Quadcore processor
+
 ## =============================================================================
 ## 1: Soil properties in the group related to "Mineralogy":
 ## Total Fe, total Si, total Al, total K, total Zn, total Cu,
