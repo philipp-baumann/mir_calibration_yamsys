@@ -17,6 +17,20 @@ require(simplerspec)
 # data tidying, import, and plotting
 require(tidyverse)
 
+
+## Register parallel backend for using multiple cores ==========================
+
+# Allows to tune the models using parallel processing (e.g. use all available
+# cores of a CPU); caret package automatically detects the registered backend
+library(doParallel)
+# Make a cluster with all possible threads (more than physical cores)
+cl <- makeCluster(detectCores())
+# Register backend
+registerDoParallel(cl)
+# Return number of parallel workers
+getDoParWorkers() # 8 threads on MacBook Pro (Retina, 15-inch, Mid 2015);
+# Quadcore processor
+
 ## Read spectra in list ========================================================
 
 # List of OPUS files from Alpha at ETH Zürich
@@ -24,12 +38,30 @@ lf_eth_ver70 <- list.files("data/spectra/soilspec_eth_vertex70",
   full.names = TRUE)
 
 # Read files: ETH Vertex 70
-spc_list_ver70 <- read_opus_univ(fnames = lf_eth_ver70)
+time_before <- Sys.time()
+spc_list_ver70 <- read_opus_univ(fnames = lf_eth_ver70, 
+  extract = c("spc"), parallel = TRUE)
+time_after <- Sys.time()
+
+system.time(
+spc_list_ver70 <- read_opus_univ(fnames = lf_eth_ver70, 
+  extract = c("spc"), parallel = FALSE)
+)
 # Save as Rds and read Rds
 # spc_list_ver70 <- saveRDS(spc_list_ver70, file = "out/files/spc_list_ver70.Rds")
 spc_list_ver70 <- readRDS(file = "out/files/spc_list_ver70.Rds")
 
+spc_list_double <- rep(spc_list_ver70, 2)
+
 ## Spectral data processing pipe ===============================================
+
+# Map where spectra in sublist "spc" are NULL:
+map_spc <- purrr::map(spc_list_double, "spc")
+which_NULL <- which(sapply(map_spc, is.null))
+# Remove values that are NULL
+spc_list_double <- spc_list_double[- which_NULL]
+
+
 names(spc_list_ver70[60])
 spc_list_ver70 <- spc_list_ver70[-60]
 
@@ -42,6 +74,9 @@ soilspec_tbl_eth <- spc_list_ver70 %>%
 # spc_list_ver70[60] # not working! 
 spc_list_ver70[[60]]$spc # is null
 spc_list_ver70[[60]]
+
+# Test plotting spectra
+plot_spc(soilspec_tbl_eth, by = "unique_id", y = "spc")
 
 ## Read chemical reference data and join with spectral data ====================
 
@@ -62,7 +97,7 @@ spec_chem <- join_spc_chem(
 
 pls_C <- fit_pls(
   spec_chem = spec_chem, 
-  response = C, 
-  split_method = "ken_sto", 
-  evaluation_method = "test_set",
-  tuning_method = "resampling")
+  response = C,
+  evaluation_method = "resampling",
+  tuning_method = "resampling",
+  resampling_method = "rep_kfold_cv")
