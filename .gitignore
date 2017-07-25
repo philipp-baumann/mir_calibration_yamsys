@@ -7,7 +7,9 @@
 *.pdf
 *_cache
 00_concepts_spectral_modeling_cache
+16_collect_cvpreds.R
 data
 models
 out
 predictions
+.Rproj.user
