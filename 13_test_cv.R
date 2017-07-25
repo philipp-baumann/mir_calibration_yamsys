@@ -26,11 +26,7 @@ library(tidyverse)
 lf_eth <- list.files("data/spectra/soilspec_eth_bin", full.names = TRUE)
 
 # Read files: ETH
-spc_list_eth <- read_opus(
-  fnames = lf_eth,
-  in_format = c("binary"),
-  out_format = "list"
-)
+spc_list_eth <- read_opus_univ(fnames = lf_eth, extract = "spc")
 
 ## Spectral data processing pipe ===============================================
 
