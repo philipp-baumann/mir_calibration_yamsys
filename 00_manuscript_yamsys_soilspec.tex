@@ -1,0 +1,1801 @@
+% Template for PLoS
+% Version 3.4 January 2017
+%
+% % % % % % % % % % % % % % % % % % % % % %
+%
+% -- IMPORTANT NOTE
+%
+% This template contains comments intended
+% to minimize problems and delays during our production
+% process. Please follow the template instructions
+% whenever possible.
+%
+% % % % % % % % % % % % % % % % % % % % % % %
+%
+% Once your paper is accepted for publication,
+% PLEASE REMOVE ALL TRACKED CHANGES in this file
+% and leave only the final text of your manuscript.
+% PLOS recommends the use of latexdiff to track changes during review, as this will help to maintain a clean tex file.
+% Visit https://www.ctan.org/pkg/latexdiff?lang=en for info or contact us at latex@plos.org.
+%
+%
+% There are no restrictions on package use within the LaTeX files except that
+% no packages listed in the template may be deleted.
+%
+% Please do not include colors or graphics in the text.
+%
+% The manuscript LaTeX source should be contained within a single file (do not use \input, \externaldocument, or similar commands).
+%
+% % % % % % % % % % % % % % % % % % % % % % %
+%
+% -- FIGURES AND TABLES
+%
+% Please include tables/figure captions directly after the paragraph where they are first cited in the text.
+%
+% DO NOT INCLUDE GRAPHICS IN YOUR MANUSCRIPT
+% - Figures should be uploaded separately from your manuscript file.
+% - Figures generated using LaTeX should be extracted and removed from the PDF before submission.
+% - Figures containing multiple panels/subfigures must be combined into one image file before submission.
+% For figure citations, please use "Fig" instead of "Figure".
+% See http://journals.plos.org/plosone/s/figures for PLOS figure guidelines.
+%
+% Tables should be cell-based and may not contain:
+% - spacing/line breaks within cells to alter layout or alignment
+% - do not nest tabular environments (no tabular environments within tabular environments)
+% - no graphics or colored text (cell background color/shading OK)
+% See http://journals.plos.org/plosone/s/tables for table guidelines.
+%
+% For tables that exceed the width of the text column, use the adjustwidth environment as illustrated in the example table in text below.
+%
+% % % % % % % % % % % % % % % % % % % % % % % %
+%
+% -- EQUATIONS, MATH SYMBOLS, SUBSCRIPTS, AND SUPERSCRIPTS
+%
+% IMPORTANT
+% Below are a few tips to help format your equations and other special characters according to our specifications. For more tips to help reduce the possibility of formatting errors during conversion, please see our LaTeX guidelines at http://journals.plos.org/plosone/s/latex
+%
+% For inline equations, please be sure to include all portions of an equation in the math environment.  For example, x$^2$ is incorrect; this should be formatted as $x^2$ (or $\mathrm{x}^2$ if the romanized font is desired).
+%
+% Do not include text that is not math in the math environment. For example, CO2 should be written as CO\textsubscript{2} instead of CO$_2$.
+%
+% Please add line breaks to long display equations when possible in order to fit size of the column.
+%
+% For inline equations, please do not include punctuation (commas, etc) within the math environment unless this is part of the equation.
+%
+% When adding superscript or subscripts outside of brackets/braces, please group using {}.  For example, change "[U(D,E,\gamma)]^2" to "{[U(D,E,\gamma)]}^2".
+%
+% Do not use \cal for caligraphic font.  Instead, use \mathcal{}
+%
+% % % % % % % % % % % % % % % % % % % % % % % %
+%
+% Please contact latex@plos.org with any questions.
+%
+% % % % % % % % % % % % % % % % % % % % % % % %
+
+\documentclass[10pt,letterpaper]{article}
+\usepackage[top=0.85in,left=2.75in,footskip=0.75in]{geometry}
+
+% amsmath and amssymb packages, useful for mathematical formulas and symbols
+\usepackage{amsmath,amssymb}
+
+% Add siunitx package for expressing SI units
+\usepackage{siunitx}
+
+% Use adjustwidth environment to exceed column width (see example table in text)
+\usepackage{changepage}
+
+% Use Unicode characters when possible
+\usepackage[utf8x]{inputenc}
+
+% textcomp package and marvosym package for additional characters
+\usepackage{textcomp,marvosym}
+
+% cite package, to clean up citations in the main text. Do not remove.
+\usepackage{cite}
+
+% Use nameref to cite supporting information files (see Supporting Information section for more info)
+\usepackage{nameref,hyperref}
+
+% line numbers
+\usepackage[right]{lineno}
+
+% ligatures disabled
+\usepackage{microtype}
+\DisableLigatures[f]{encoding = *, family = * }
+
+% color can be used to apply background shading to table cells only
+\usepackage[table]{xcolor}
+
+% array package and thick rules for tables
+\usepackage{array}
+
+% create "+" rule type for thick vertical lines
+\newcolumntype{+}{!{\vrule width 2pt}}
+
+% create \thickcline for thick horizontal lines of variable length
+\newlength\savedwidth
+\newcommand\thickcline[1]{%
+  \noalign{\global\savedwidth\arrayrulewidth\global\arrayrulewidth 2pt}%
+  \cline{#1}%
+  \noalign{\vskip\arrayrulewidth}%
+  \noalign{\global\arrayrulewidth\savedwidth}%
+}
+
+% \thickhline command for thick horizontal lines that span the table
+\newcommand\thickhline{\noalign{\global\savedwidth\arrayrulewidth\global\arrayrulewidth 2pt}%
+\hline
+\noalign{\global\arrayrulewidth\savedwidth}}
+
+
+% Remove comment for double spacing
+%\usepackage{setspace}
+%\doublespacing
+
+% Text layout
+\raggedright
+\setlength{\parindent}{0.5cm}
+\textwidth 5.25in
+\textheight 8.75in
+
+% Bold the 'Figure #' in the caption and separate it from the title/caption with a period
+% Captions will be left justified
+\usepackage[aboveskip=1pt,labelfont=bf,labelsep=period,justification=raggedright,singlelinecheck=off]{caption}
+\renewcommand{\figurename}{Fig}
+
+% Use the PLoS provided BiBTeX style
+\bibliographystyle{plos2015}
+
+% Remove brackets from numbering in List of References
+\makeatletter
+\renewcommand{\@biblabel}[1]{\quad#1.}
+\makeatother
+
+% Leave date blank
+\date{}
+
+% Header and Footer with logo
+\usepackage{lastpage,fancyhdr,graphicx}
+\usepackage{epstopdf}
+\pagestyle{myheadings}
+\pagestyle{fancy}
+\fancyhf{}
+\setlength{\headheight}{27.023pt}
+\lhead{\includegraphics[width=2.0in]{PLOS-submission.eps}}
+\rfoot{\thepage/\pageref{LastPage}}
+\renewcommand{\footrule}{\hrule height 2pt \vspace{2mm}}
+\fancyheadoffset[L]{2.25in}
+\fancyfootoffset[L]{2.25in}
+\lfoot{\sf PLOS}
+
+%% Include all macros below
+
+\newcommand{\lorem}{{\bf LOREM}}
+\newcommand{\ipsum}{{\bf IPSUM}}
+
+%% END MACROS SECTION
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% knitr preamble to format R outputs in LaTex
+%% maxwidth is the original width if it is less than linewidth
+%% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}
+\newcommand{\hlnum}[1]{\textcolor[rgb]{0.686,0.059,0.569}{#1}}%
+\newcommand{\hlstr}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}%
+\newcommand{\hlcom}[1]{\textcolor[rgb]{0.678,0.584,0.686}{\textit{#1}}}%
+\newcommand{\hlopt}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlstd}[1]{\textcolor[rgb]{0.345,0.345,0.345}{#1}}%
+\newcommand{\hlkwa}[1]{\textcolor[rgb]{0.161,0.373,0.58}{\textbf{#1}}}%
+\newcommand{\hlkwb}[1]{\textcolor[rgb]{0.69,0.353,0.396}{#1}}%
+\newcommand{\hlkwc}[1]{\textcolor[rgb]{0.333,0.667,0.333}{#1}}%
+\newcommand{\hlkwd}[1]{\textcolor[rgb]{0.737,0.353,0.396}{\textbf{#1}}}%
+\let\hlipl\hlkwb
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt}
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{document}
+\vspace*{0.2in}
+
+% Title must be 250 characters or less.
+\begin{flushleft}
+{\Large
+\textbf\newline{Soil status assessment across the West African yam belt using mid-infrared spectral modeling
+} % Please use "sentence case" for title and headings (capitalize only the first word in a title (or heading), the first word in a subtitle (or subheading), and any proper nouns).
+}
+\newline
+% Insert author names, affiliations and corresponding author email (do not include titles, positions, or degrees).
+\\
+Philipp Baumann\textsuperscript{1\textcurrency}, % \Yinyang
+Juhwan Lee\textsuperscript{1,2},
+Laurie Paule Schönholzer\textsuperscript{1},
+Emmanuel Frossard\textsuperscript{1},
+Johan Six\textsuperscript{1} % ,
+% with the Lorem Ipsum Consortium\textsuperscript{\textpilcrow}
+\\
+\bigskip
+\textbf{1} Department of Environmental Systems Science, ETH Zurich, 8092 Zurich, Switzerland
+\\
+\textbf{2} Bruce E. Butler Laboratory, CSIRO Land and Water, Canberra, ACT, Australia
+\\
+\bigskip
+
+% Insert additional author notes using the symbols described below. Insert symbol callouts after author names as necessary.
+%
+% Remove or comment out the author notes below if they aren't used.
+%
+% Primary Equal Contribution Note
+% \Yinyang These authors contributed equally to this work.
+
+% Additional Equal Contribution Note
+% Also use this double-dagger symbol for special authorship notes, such as senior authorship.
+% \ddag These authors also contributed equally to this work.
+
+% Current address notes
+\textcurrency Current Address: Sustainable Agroecosystems group, Institute for Agricultural Sciences, ETH Zürich, Tannenstrasse 1,
+8092 Zürich, Switzerland % change symbol to "\textcurrency a" if more than one current address note
+% \textcurrency b Insert second current address
+% \textcurrency c Insert third current address
+
+% Deceased author note
+% \dag Deceased
+
+% Group/Consortium Author Note
+% \textpilcrow Membership list can be found in the Acknowledgments section.
+
+% Use the asterisk to denote corresponding authorship and provide email address in note below.
+* philipp.baumann@usys.ethz.ch
+
+\end{flushleft}
+% Please keep the abstract below 300 words
+\section*{Abstract}
+
+
+% Please keep the Author Summary between 150 and 200 words
+% Use first person. PLOS ONE authors please skip this step.
+% Author Summary not valid for PLOS ONE submissions.
+\section*{Author summary}
+
+\linenumbers
+
+% Use "Eq" instead of "Equation" for equation citations.
+\section*{Introduction}
+% citation: \cite{bib1}
+% reference: \ref{eq:schemeP}
+
+\section*{Materials and methods}
+
+\subsection*{Spectroscopy modeling}
+
+\subsubsection*{Model building and evaluation}
+
+In PLS regression, there is a single tuning parameter called the number of
+component (ncomp) or latent variables. This model parameter cannot be
+directly estimated from the data because there is no analytical formula to
+calculate it. The choice of ncomp in the final model determines the model
+complexity and how adaptive the final PLS regression model for a soil property
+is to the training spectra. Along with many other modern predictive modeling
+techniques, PLS regression potentially bears the risk to over-fit the
+structure in predictor data (spectra) in relation to the response (soil
+property) to predict, particularly in cases with low number of observations and
+high number of predictions. Hence in over-fitting situations, due to each
+sample’s unique noise learned besides general patterns during training, the
+model does not generalize well to new samples to predict. Model tuning aims
+to find model parameter values that yield best and realistic prediction
+accuracy. The below described model building approach embraces both model
+tuning and evaluation and thereby avoids over-fitting.
+
+% Todo: cite caret package and add PLSR package; see MSc thesis
+Calibration models were fitted using the orthogonal scores PLS regression
+algorithm (PLS1, single soil property response vector to predict), which is
+implemented in the pls \cite{mevik_pls:_2016} R package, as described by
+\cite{martens_multivariate_1989}). Based on the caret (classification and
+regression training \cite{wing_caret:_2017}) and the pls R packages, a set of
+PLS regression candidatate models were built using the cross-validation
+resampling method. In particular, 5 times repeated 10-fold cross-validation was
+chosen to determine ncomp in the final models and to estimate model performance.
+Repeated K-fold cross-validation procedures provide unbiased and precise
+internal estimates of predictive performance, targeting both most efficient use
+of the available data set and realistic model evaluation measures
+\cite{molinaro_prediction_2005}, \cite{kim_estimating_2009}. For each soil
+property, ncomp for final PLS regression (PLS1) model was tuned separately. For
+each soil property model, the sample set was repeatedly randomly split into $k =
+10$ (approximately) equally-sized subsets without replacement for all repeats $r =
+1, 2, .., 5$ and all candidate values in the tuning grid $ncomp = 1, 2, ...,
+10$. Within each of the $r \times \mathrm{ncomp} = 5 \times 10 = 50$ resampling
+data set splits, each of the 10 possible held-out and model fitting set
+combinations (folds) was subjected to candidate model building at the respective
+ncomp, using $k - 1 = 9$ out of 10 subsets and remaining held-out samples were
+predicted based on the fitted models. The root mean square (RMSE, \ref{eq:RMSE})
+of the held-out samples was calculated by aggregating all repeated \emph{K}-fold
+cross-validation predictions ($\hat{y}_i$) and corresponding observed values
+($y_i$) grouped by ncomp, which resulted in a cross-validated performance
+profile RMSE vs. ncomp.
+
+% todo: add subscript rcv (repeated K-fold cv) and adapt indices;
+% look up possible mathematical expression in
+% <Elements of statistical learning
+\begin{equation}
+\label{eq:RMSE}
+\textsc{rmse} = \sqrt{\frac{\sum_{i=1}^{n} (\hat{y}_i - y_i)^2}{n}}
+\end{equation}
+
+ Based on this performance profiles, minimal ncomp among the models whose
+ performance was within a single standard error (``One standard error'' rule,
+ \cite{breiman_classification_1984}) of the lowest numerical value of RMSE was
+ selected as final ncomp for the respective soil properties.
+
+Model evaluation at the finally chosen ncomp was conducted based on repeated
+\emph{K}-fold cross-validation estimates of the measures RMSE, $R^2$ and ratio
+of performance to deviation (RPD). The RPD index is the ratio of the chemical
+reference data standard deviation to the RMSE of prediction and is a scaled
+index to compare goodness-of-fit across data sets with difference ranges or
+variances in observed values. Besides calculating the above listed performance
+measures, accuracy (bias) and precision (variance) of resampling-based held-out
+predictions was expressed and depicted on an individual soil sample basis.
+Particularly, sample-specific prediction means and \SI{95}{\%} confidence
+intervals across cross-validation repeats (Eq. \ref{eq:pred_var} and
+\ref{eq:pred_ci}; $n = r = 5$) were compared against observed values in order to
+detect eventual model instabilities and trends in uncertainty patterns among
+sample predictions, and finally prove the appropriateness of the chosen
+resampling technique and settings for this data set.
+
+\begin{align}
+\label{eq:pred_var}
+S_n^2 &= \frac{1}{n - 1} \sum{{(y_i - \overline{\hat{y_i}})}^2} \\
+\label{eq:pred_ci}
+\overline{\hat{y_i}} &\pm t(n - 1, 1 - \alpha / 2) \frac{S_n}{\sqrt{n}};
+\alpha = 0.05
+\end{align}
+
+In order to cover the full training data space in the models for future sample
+predictions, the final PLS1 regression models were rebuilt using the entire
+training set and the respective values of optimal final ncomp determined by the
+procedure described above.
+% Update
+
+
+% For figure citations, please use "Fig" instead of "Figure".
+% name references: \nameref{S1_Video}
+
+% Place figure captions after the first paragraph in which they are cited.
+% \begin{figure}[!h]
+% \caption{{\bf Bold the figure title.}
+% Figure caption text here, please use this space for the figure panel descriptions instead of using subfigure commands. A: Lorem ipsum dolor sit amet. B: Consectetur adipiscing elit.}
+% \label{fig1}
+% \end{figure}
+
+% Results and Discussion can be combined.
+\section*{Results}
+
+% Test knitr input for results; compiled from .Rnw file
+% Define compiling routine in Makefile
+% see http://kbroman.org/minimal_make/
+\input{00_manuscript_yamsys_soilspec_results.tex}
+
+% Place tables after the first paragraph in which they are cited.
+% \begin{table}[!ht]
+% \begin{adjustwidth}{-2.25in}{0in} % Comment out/remove adjustwidth environment if table fits in text column.
+% \centering
+% \caption{
+% {\bf Table caption Nulla mi mi, venenatis sed ipsum varius, volutpat euismod diam.}}
+% \begin{tabular}{|l+l|l|l|l|l|l|l|}
+% \hline
+% \multicolumn{4}{|l|}{\bf Heading1} & \multicolumn{4}{|l|}{\bf Heading2}\\ \thickhline
+% $cell1 row1$ & cell2 row 1 & cell3 row 1 & cell4 row 1 & cell5 row 1 & cell6 row 1 & cell7 row 1 & cell8 row 1\\ \hline
+% $cell1 row2$ & cell2 row 2 & cell3 row 2 & cell4 row 2 & cell5 row 2 & cell6 row 2 & cell7 row 2 & cell8 row 2\\ \hline
+% $cell1 row3$ & cell2 row 3 & cell3 row 3 & cell4 row 3 & cell5 row 3 & cell6 row 3 & cell7 row 3 & cell8 row 3\\ \hline
+% \end{tabular}
+% \begin{flushleft} Table notes Phasellus venenatis, tortor nec vestibulum mattis, massa tortor interdum felis, nec pellentesque metus tortor nec nisl. Ut ornare mauris tellus, vel dapibus arcu suscipit sed.
+% \end{flushleft}
+% \label{table1}
+% \end{adjustwidth}
+% \end{table}
+
+\section*{Discussion}
+% Half space with e.g.
+% Table~\ref{table1}
+
+\section*{Conclusion}
+% \nameref{S1_Appendix}
+
+\section*{Supporting information}
+
+% Include only the SI item label in the paragraph heading. Use the \nameref{label} command to cite SI items in the text.
+\paragraph*{S1 Fig.}
+\label{S1_Fig}
+{\bf Bold the title sentence.} Add descriptive text after the title of the item (optional).
+
+\paragraph*{S2 Fig.}
+\label{S2_Fig}
+{\bf Lorem ipsum.} Some text.
+
+\paragraph*{S1 File.}
+\label{S1_File}
+{\bf Lorem ipsum.} Some text.
+
+\paragraph*{S1 Video.}
+\label{S1_Video}
+{\bf Lorem ipsum.} Some text.
+
+\paragraph*{S1 Appendix.}
+\label{S1_Appendix}
+{\bf Lorem ipsum.} Some text.
+
+\paragraph*{S1 Table.}
+\label{S1_Table}
+{\bf Lorem ipsum.} Some text.
+
+\section*{Acknowledgments}
+
+\nolinenumbers
+
+\bibliographystyle{plos2015.bst}
+\bibliography{references}
+
+% Either type in your references using
+% \begin{thebibliography}{}
+% \bibitem{}
+% Text
+% \end{thebibliography}
+%
+% or
+%
+% Compile your BiBTeX database using our plos2015.bst
+% style file and paste the contents of your .bbl file
+% here. See http://journals.plos.org/plosone/s/latex for
+% step-by-step instructions.
+%
+% \begin{thebibliography}{10}
+%
+% \bibitem{bib1}
+% Conant GC, Wolfe KH.
+% \newblock {{T}urning a hobby into a job: how duplicated genes find new
+%   functions}.
+% \newblock Nat Rev Genet. 2008 Dec;9(12):938--950.
+%
+% \bibitem{bib2}
+% Ohno S.
+% \newblock Evolution by gene duplication.
+% \newblock London: George Alien \& Unwin Ltd. Berlin, Heidelberg and New York:
+%   Springer-Verlag.; 1970.
+%
+% \bibitem{bib3}
+% Magwire MM, Bayer F, Webster CL, Cao C, Jiggins FM.
+% \newblock {{S}uccessive increases in the resistance of {D}rosophila to viral
+%   infection through a transposon insertion followed by a {D}uplication}.
+% \newblock PLoS Genet. 2011 Oct;7(10):e1002337.
+%
+% \end{thebibliography}
+
+
+
+\end{document}
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+     
+          
+     
+     
+   
+     
+ 
+     
+     
+   
+     
+  
+  
+     
+   
+     
+  
+     
+  
+
+  
+  
+     
+   
+     
+  
+     
+  
+
+  
+     
+  
+     
+  
+
+  
+ 
+  
+
+  
+
+  
+
+  
+ 
+  
+
+  
+
+  
+  
+ 
+  
+
+  
+
+  
+
+
+  
+ 
+  
+
+  
+
+  
+  
+ 
+  
+
+  
+
+  
+
+ 
+  
+
+  
+
+  
+
+
+  
+ 
+  
+
+  
+
+  
+  
+ 
+  
+
+  
+
+  
+  
+  
+ 
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+ 
+
+  
+ 
+
+  
+
+  
+
+  
+
+  
+
+  
+ 
+
+  
+ 
+
+
+  
+
+
+  
+ 
+  
+
+  
+
+  
+  
+ 
+  
+
+  
+
+  
+
+ 
+  
+
+  
+
+  
+
+
+  
+ 
+  
+
+  
+
+  
+  
+ 
+  
+
+  
+
+  
+  
+  
+ 
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+ 
+
+  
+ 
+
+  
+
+  
+
+  
+
+  
+
+  
+ 
+
+  
+ 
+
+ 
+
+  
+ 
+ 
+ 
+
+  
+ 
+
+  
+ 
+
+ 
+
+  
+ 
+ 
+
+
+  
+ 
+ 
+  
+ 
+ 
+ 
+  
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+
+ 
+
+  
+
+  
+
+  
+ 
+
+  
+ 
+
+  
+
+  
+
+  
+
+  
+
+  
+ 
+
+  
+ 
+
+ 
+
+  
+ 
+ 
+ 
+
+  
+ 
+
+  
+ 
+
+ 
+
+  
+ 
+ 
+
+
+  
+ 
+ 
+  
+ 
+ 
+ 
+  
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+
+ 
+ 
+ 
+
+ 
+
+  
+ 
+ 
+ 
+
+  
+ 
+
+  
+ 
+
+ 
+
+  
+ 
+ 
+
+
+  
+ 
+ 
+  
+ 
+ 
+ 
+  
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+
+ 
+
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+
+ 
+ 
+
+ 
+ 
+
+
+ 
+ 
+
+ 
+ 
+
+ 
+
+
+ 
+ 
+
+
+ 
+ 
+
+ 
+ 
+
+ 
+
+ 
+ 
+
+ 
+
+
+ 
+ 
+
+ 
+
+
+ 
+ 
+
+
+ 
+ 
+
+ 
+ 
+
+ 
+
+ 
+ 
+
+ 
+
+
+ 
+
+ 
+
+ 
+
+
+ 
+
+
+
+ 
+
+ 
+ 
+
+ 
+
+ 
+
+ 
+ 
+
+ 
+ 
+
+ 
+ 
+
+ 
+ 
+
+ 
+
+
+ 
+ 
+
+ 
+ 
+
+ 
+ 
+
+ 
+ 
+
+ 
+
+
+ 
+ 
+
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+ 
+
+  
+ 
+
+  
+
+  
+
+  
+
+  
+
+  
+ 
+
+  
+ 
+
+
+  
+
+
+  
+ 
+  
+
+  
+
+  
+  
+ 
+  
+
+  
+
+  
+
+ 
+  
+
+  
+
+  
+
+
+  
+ 
+  
+
+  
+
+  
+  
+ 
+  
+
+  
+
+  
+  
+  
+ 
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+ 
+
+  
+ 
+
+  
+
+  
+
+  
+
+  
+
+  
+ 
+
+  
+ 
+
+ 
+
+  
+ 
+ 
+ 
+
+  
+ 
+
+  
+ 
+
+ 
+
+  
+ 
+ 
+
+
+  
+ 
+ 
+  
+ 
+ 
+ 
+  
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+
+ 
+
+  
+
+  
+
+  
+ 
+
+  
+ 
+
+  
+
+  
+
+  
+
+  
+
+  
+ 
+
+  
+ 
+
+ 
+
+  
+ 
+ 
+ 
+
+  
+ 
+
+  
+ 
+
+ 
+
+  
+ 
+ 
+
+
+  
+ 
+ 
+  
+ 
+ 
+ 
+  
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+
+ 
+ 
+ 
+
+ 
+
+  
+ 
+ 
+ 
+
+  
+ 
+
+  
+ 
+
+ 
+
+  
+ 
+ 
+
+
+  
+ 
+ 
+  
+ 
+ 
+ 
+  
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+
+ 
+
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+
+ 
+ 
+
+ 
+ 
+
+
+ 
+ 
+
+ 
+ 
+
+ 
+
+
+ 
+ 
+
+
+ 
+ 
+
+ 
+ 
+
+ 
+
+ 
+ 
+
+ 
+
+
+ 
+ 
+
+ 
+
+
+ 
+ 
+
+
+ 
+ 
+
+ 
+ 
+
+ 
+
+ 
+ 
+
+ 
+
+
+ 
+
+ 
+
+ 
+
+
+ 
+
+
+
+ 
+
+ 
+ 
+
+ 
+
+ 
+
+ 
+ 
+
+ 
+ 
+
+ 
+ 
+
+ 
+ 
+
+ 
+
+
+ 
+ 
+
+ 
+ 
+
+ 
+ 
+
+ 
+ 
+
+ 
+
+
+ 
+ 
+
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+ 
+
+ 
+
+ 
+
+ 
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+ 
+
+ 
+
+ 
+
+ 
+ 
+
+ 
+
+ 
+ 
+
+ 
+ 
+
+ 
+
+ 
+ 
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+
+ 
+
+ 
+
+ 
+
+ 
+ 
+ 
+
+ 
+
+
+ 
+
+ 
+
+ 
+
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+
+ 
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+
+ 
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+ 
+ 
+
+ 
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+
+ 
+ 
+
+
+
+ 
+ 
+
+ 
+
+
+ 
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+
+ 
+ 
+
+
+
+ 
+ 
+
+ 
+ 
+ 
+ 
+
+ 
+
+ 
+
+ 
+
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+
+ 
+
+ 
+
+ 
+
+ 
+ 
+ 
+
+ 
+
+
+ 
+
+ 
+
+ 
+
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+
+ 
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+
+ 
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+ 
+ 
+
+ 
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+
+ 
+ 
+
+
+
+ 
+ 
+
+ 
+
+
+ 
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+
+ 
+ 
+
+
+
+ 
+ 
+
+ 
+ 
+ 
+ 
+
+ 
+
+ 
+
+ 
