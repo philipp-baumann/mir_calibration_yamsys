@@ -69,6 +69,9 @@ soilchem_tbl <- read_csv(file = "data/soilchem/soilchem_yamsys.csv")
 spec_chem <- join_spc_chem(
   spc_tbl = soilspec_tbl, chem_tbl = soilchem_tbl, by = "sample_id")
 
+# Save tibble with spectra and chemical data on disk
+readr::write_rds(x = spec_chem, path = "out/files/spec_chem.Rds")
+
 
 ################################################################################
 ## Part 2: Run PLS regression models for different soil variables
@@ -308,8 +311,8 @@ pls_P <- fit_pls(
 # Resin-extractable P
 # Log-transform gives better prediction
 pls_resin_P_log <- fit_pls(
-  spec_chem = spec_chem[!is.na(spec_chem$P_meas), ],
-  response = log(P_meas),
+  spec_chem = spec_chem[!is.na(spec_chem$P_resin), ],
+  response = log(P_resin),
   evaluation_method = "resampling",
   tuning_method = "resampling",
   resampling_method = "rep_kfold_cv",
@@ -390,7 +393,7 @@ pls_clay <- fit_pls(
 # Model for silt
 pls_silt <- fit_pls(
   spec_chem = spec_chem[!is.na(spec_chem$silt), ],
-  response = clay,
+  response = silt,
   evaluation_method = "resampling",
   tuning_method = "resampling",
   resampling_method = "rep_kfold_cv",
@@ -565,8 +568,9 @@ saveRDS(pls_silt, "models/rep_kfold_cv/pls_silt.Rds")
 saveRDS(pls_clay, "models/rep_kfold_cv/pls_clay.Rds")
 
 # Check if models have been written
-list.files("models")
+list.files("models/rep_kfold_cv")
 
 # Check model sizes
 object.size(pls_resin_P_log$model)
 # ca. 30MB; fix git status
+ 
